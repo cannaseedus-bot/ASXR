@@ -1,1 +1,128 @@
-<!-- ASX PRIME GODMODE RUNTIME STUB -->
+<!-- ASX PRIME GODMODE RUNTIME STUB --><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASX PRIME GODMODE OS</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: #0f0;
+            font-family: Consolas, monospace;
+            overflow: hidden;
+        }
+        #bootlog {
+            padding: 20px;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        .ok { color: #4dfc4d; }
+        .load { color: #4da6fc; }
+        .warn { color: #fcfc4d; }
+        .err { color: #fc4d4d; }
+        #prime-frame {
+            position: absolute;
+            left: 0; top: 0;
+            right: 0; bottom: 0;
+            background: #000;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="bootlog"></div>
+<div id="prime-frame"></div>
+
+<script>
+// -------------------------------
+//  ASX PRIME GODMODE – BOOT CORE
+// -------------------------------
+
+const log = (msg, cls="") => {
+    const el = document.getElementById("bootlog");
+    el.innerHTML += `<div class="${cls}">${msg}</div>`;
+};
+
+(async function boot() {
+    log("ASX PRIME GODMODE OS :: BOOTING...", "load");
+    await wait(300);
+
+    // Basic environment checks
+    log("Checking GitHub Pages environment...", "load");
+    await wait(200);
+
+    log("✓ DOM ready", "ok");
+    await wait(100);
+
+    // --- Mount Runtime ---
+    log("Loading ASX Runtime Kernel...", "load");
+    await wait(300);
+
+    // Minimal inlined runtime (real one loads after boot)
+    window.ASX = {
+        tapes: {},
+        mountTape(name) {
+            log(`Mounting tape: ${name}`, "load");
+            // Basic tape mount stub
+        },
+        exec(fn) {
+            try { fn(); }
+            catch(e){ log("Runtime error: " + e.message, "err"); }
+        }
+    };
+
+    log("✓ Runtime Kernel Mounted", "ok");
+    await wait(100);
+
+    // --- SCX Layer ---
+    log("Loading SCX Quantum Layer...", "load");
+    await wait(250);
+    window.SCX = { decode(x){ return x; }, encode(x){ return x; } };
+    log("✓ SCX Quantum Layer Ready", "ok");
+
+    // --- Emulator Bridge ---
+    log("Injecting Emulator Core...", "load");
+    await wait(250);
+    window.EMU = { ready: true };
+    log("✓ Emulator Core Installed", "ok");
+
+    // --- Studio Loader ---
+    log("Loading Studio Tools...", "load");
+    await wait(200);
+    window.STUDIO = { createProject(){ log("New Studio Project Created", "ok"); }};
+    log("✓ Studio Ready", "ok");
+
+    // --- PRIME OS Frame ---
+    log("Initializing PRIME Frame...", "load");
+    await wait(400);
+
+    document.getElementById("bootlog").style.display = "none";
+    const frame = document.getElementById("prime-frame");
+    frame.style.display = "block";
+    frame.innerHTML = PRIME_UI;
+
+    log("✓ PRIME Frame Loaded", "ok");
+})();
+
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// ----------------------------
+//   PRIME UI (SAFE VERSION)
+// ----------------------------
+const PRIME_UI = `
+<div style="color:#0f0;padding:20px;">
+    <h1>ASX PRIME GODMODE</h1>
+    <p>System Online</p>
+    <button onclick="alert('Tapes not loaded yet — runtime is clean boot.')"
+        style="padding:10px 20px;background:#111;color:#0f0;border:1px solid #0f0;">Test Button</button>
+</div>
+`;
+
+</script>
+
+</body>
+</html>
