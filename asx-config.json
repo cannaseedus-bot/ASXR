@@ -1,1 +1,55 @@
-{}
+{
+  "hive": "prime-demo",
+  "shards": [
+    {
+      "id": "users",
+      "port": 3001,
+      "runtime": "kuhul",
+      "api": [
+        {
+          "path": "/list",
+          "method": "GET",
+          "handler": "list_users"
+        }
+      ]
+    },
+    {
+      "id": "ai-crown",
+      "port": 3002,
+      "runtime": "kuhul",
+      "api": [
+        {
+          "path": "/chat",
+          "method": "POST",
+          "handler": "ollama_chat"
+        },
+        {
+          "path": "/models",
+          "method": "GET",
+          "handler": "list_ollama_models"
+        }
+      ]
+    }
+  ],
+  "mesh": {
+    "protocol": "virtual-rest",
+    "ports": [3001, 3002]
+  },
+  "ai": {
+    "ollama": {
+      "enabled": true,
+      "url": "http://localhost:11434",
+      "defaultModel": "llama2"
+    },
+    "localAPIs": [
+      {
+        "name": "ollama",
+        "url": "http://localhost:11434"
+      },
+      {
+        "name": "lmstudio",
+        "url": "http://localhost:1234"
+      }
+    ]
+  }
+}

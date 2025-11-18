@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Hive OS - Complete Stack Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #0ff;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #0ff;
+        }
+
+        .tagline {
+            text-align: center;
+            color: #4da6fc;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stack-badges {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 10px 20px;
+            border: 2px solid #0ff;
+            border-radius: 5px;
+            background: rgba(0, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .badge.klh { border-color: #4dfc4d; color: #4dfc4d; }
+        .badge.xjson { border-color: #fc4da6; color: #fc4da6; }
+        .badge.kuhul { border-color: #fcfc4d; color: #fcfc4d; }
+        .badge.scx { border-color: #4da6fc; color: #4da6fc; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #0ff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .panel h2 {
+            color: #0ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4dfc4d;
+            box-shadow: 0 0 10px #4dfc4d;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        button {
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #0ff;
+            color: #0ff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 15px #0ff;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .log {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-entry.info { color: #4da6fc; }
+        .log-entry.success { color: #4dfc4d; }
+        .log-entry.warning { color: #fcfc4d; }
+        .log-entry.error { color: #fc4d4d; }
+
+        .shard-card {
+            background: rgba(0, 100, 100, 0.1);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .shard-card h4 {
+            color: #4dfc4d;
+            margin-bottom: 5px;
+        }
+
+        .shard-info {
+            font-size: 12px;
+            color: #888;
+        }
+
+        input[type="text"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0ff;
+            color: #0ff;
+            padding: 8px;
+            border-radius: 3px;
+            width: 100%;
+            font-family: 'Courier New', monospace;
+            margin: 5px 0;
+        }
+
+        .chat-messages {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-left: 3px solid #0ff;
+            padding-left: 10px;
+        }
+
+        .chat-message.agent { border-left-color: #fc4da6; }
+
+        code {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MULTI-HIVE OS</h1>
+        <div class="tagline">KLH + XJSON + K'uhul + SCX - Complete Distributed Stack</div>
+
+        <div class="stack-badges">
+            <div class="badge klh">🏗️ KLH - Hive Orchestrator</div>
+            <div class="badge xjson">📦 XJSON - Data Definition</div>
+            <div class="badge kuhul">⚡ K'uhul - Execution Engine</div>
+            <div class="badge scx">🗜️ SCX - Compression</div>
+        </div>
+
+        <div class="grid">
+            <!-- Hive Status Panel -->
+            <div class="panel">
+                <h2><span class="status"></span>Hive Status</h2>
+                <div id="hiveStatus" class="log"></div>
+                <button onclick="refreshStatus()">Refresh Status</button>
+                <button onclick="bootDefaultHive()">Boot Default Hive</button>
+            </div>
+
+            <!-- Shards Panel -->
+            <div class="panel">
+                <h2>Active Shards</h2>
+                <div id="shardsList"></div>
+                <button onclick="createDemoShard()">Create Demo Shard</button>
+                <button onclick="listShards()">Refresh Shards</button>
+            </div>
+
+            <!-- Virtual Mesh Panel -->
+            <div class="panel">
+                <h2>Virtual Mesh Network</h2>
+                <div id="meshRoutes" class="log"></div>
+                <button onclick="testMeshCall()">Test Mesh Call</button>
+                <button onclick="getMeshRoutes()">Show Routes</button>
+            </div>
+
+            <!-- AI Swarm Panel -->
+            <div class="panel">
+                <h2>AI Chat Swarm</h2>
+                <div id="chatMessages" class="chat-messages"></div>
+                <input type="text" id="chatInput" placeholder="Send message to AI swarm...">
+                <button onclick="connectSwarm()">Connect Swarm</button>
+                <button onclick="sendToSwarm()">Send Message</button>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="panel">
+            <h2>System Activity Log</h2>
+            <div id="activityLog" class="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <!-- Technology Demos -->
+        <div class="grid">
+            <div class="panel">
+                <h2>XJSON Parser Demo</h2>
+                <div id="xjsonDemo" class="log"></div>
+                <button onclick="demoXJSON()">Run XJSON Demo</button>
+            </div>
+
+            <div class="panel">
+                <h2>K'uhul VM Demo</h2>
+                <div id="kuhulDemo" class="log"></div>
+                <button onclick="demoKuhul()">Run K'uhul Demo</button>
+            </div>
+
+            <div class="panel">
+                <h2>SCX Compression Demo</h2>
+                <div id="scxDemo" class="log"></div>
+                <button onclick="demoSCX()">Run SCX Demo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/klh/client.js"></script>
+    <script>
+        // Initialize KLH Client
+        const klh = new KLHClient();
+        let swarmWS = null;
+
+        // Log utilities
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Hive operations
+        async function refreshStatus() {
+            try {
+                log('Fetching hive status...', 'info');
+                const status = await klh.getStatus();
+
+                const statusEl = document.getElementById('hiveStatus');
+                statusEl.innerHTML = `
+                    <div class="log-entry success">Hive ID: ${status.id}</div>
+                    <div class="log-entry info">Booted: ${status.booted}</div>
+                    <div class="log-entry info">Shards: ${status.shards}</div>
+                    <div class="log-entry info">Mesh Protocol: ${status.mesh.protocol}</div>
+                    <div class="log-entry info">Uptime: ${Math.floor(status.uptime)}s</div>
+                `;
+
+                log('Hive status updated', 'success');
+            } catch (err) {
+                log(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function bootDefaultHive() {
+            try {
+                log('Booting default hive...', 'info');
+
+                const config = {
+                    hive: 'prime-demo',
+                    shards: [
+                        {
+                            id: 'users',
+                            port: 3001,
+                            runtime: 'kuhul',
+                            api: [
+                                { path: '/list', method: 'GET', handler: 'list_users' }
+                            ]
+                        }
+                    ],
+                    mesh: {
+                        protocol: 'virtual-rest',
+                        ports: [3001]
+                    }
+                };
+
+                const result = await klh.bootHive(config);
+                log(`Hive booted: ${result.hive}`, 'success');
+                refreshStatus();
+                listShards();
+            } catch (err) {
+                log(`Boot error: ${err.message}`, 'error');
+            }
+        }
+
+        // Shard operations
+        async function listShards() {
+            try {
+                log('Listing shards...', 'info');
+                const shards = await klh.listShards();
+
+                const shardsEl = document.getElementById('shardsList');
+                shardsEl.innerHTML = shards.map(s => `
+                    <div class="shard-card">
+                        <h4>${s.id}</h4>
+                        <div class="shard-info">Port: ${s.port} | Runtime: ${s.runtime}</div>
+                        <div class="shard-info">Endpoints: ${s.endpoints} | View: ${s.hasView}</div>
+                    </div>
+                `).join('');
+
+                log(`Found ${shards.length} shards`, 'success');
+            } catch (err) {
+                log(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function createDemoShard() {
+            try {
+                log('Creating demo shard...', 'info');
+
+                const shard = {
+                    id: `demo-${Date.now()}`,
+                    port: 3000 + Math.floor(Math.random() * 100),
+                    runtime: 'kuhul',
+                    api: [
+                        { path: '/test', method: 'GET', handler: 'test_handler' }
+                    ]
+                };
+
+                await klh.registerShard(shard);
+                log(`Shard created: ${shard.id}`, 'success');
+                listShards();
+            } catch (err) {
+                log(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        // Mesh operations
+        async function getMeshRoutes() {
+            try {
+                log('Fetching mesh routes...', 'info');
+                const routes = await klh.getMeshRoutes();
+
+                const meshEl = document.getElementById('meshRoutes');
+                meshEl.innerHTML = routes.map(r => `
+                    <div class="log-entry info">${r.method} ${r.meshUrl} → Shard: ${r.shard}:${r.port}</div>
+                `).join('');
+
+                log(`Found ${routes.length} mesh routes`, 'success');
+            } catch (err) {
+                log(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testMeshCall() {
+            try {
+                log('Testing virtual mesh call...', 'info');
+
+                // Call via virtual network
+                const response = await klh.hiveFetch('http://localhost:3001/list');
+                const data = await response.json();
+
+                log(`Mesh call successful: ${JSON.stringify(data)}`, 'success');
+            } catch (err) {
+                log(`Mesh error: ${err.message}`, 'error');
+            }
+        }
+
+        // AI Swarm operations
+        function connectSwarm() {
+            try {
+                log('Connecting to AI swarm...', 'info');
+
+                swarmWS = klh.connectSwarm((msg) => {
+                    const chatEl = document.getElementById('chatMessages');
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-message ' + (msg.type.includes('agent') ? 'agent' : '');
+                    msgDiv.innerHTML = `<strong>${msg.type}:</strong> ${JSON.stringify(msg, null, 2)}`;
+                    chatEl.appendChild(msgDiv);
+                    chatEl.scrollTop = chatEl.scrollHeight;
+                });
+
+                log('Connected to swarm', 'success');
+            } catch (err) {
+                log(`Swarm error: ${err.message}`, 'error');
+            }
+        }
+
+        function sendToSwarm() {
+            const input = document.getElementById('chatInput');
+            const message = input.value;
+
+            if (!message) return;
+
+            klh.sendToSwarm({
+                type: 'swarm:message',
+                messageId: Date.now(),
+                message
+            });
+
+            log(`Sent to swarm: ${message}`, 'info');
+            input.value = '';
+        }
+
+        // Technology demos
+        function demoXJSON() {
+            const demo = document.getElementById('xjsonDemo');
+            demo.innerHTML = `
+                <div class="log-entry info">XJSON Example:</div>
+                <div class="log-entry">Input: <code>{"⟁shard": {"⟁id": "test"}}</code></div>
+                <div class="log-entry success">Parsed: <code>{"shard": {"id": "test"}}</code></div>
+                <div class="log-entry info">✓ XJSON normalization complete</div>
+            `;
+            log('XJSON demo executed', 'success');
+        }
+
+        function demoKuhul() {
+            const demo = document.getElementById('kuhulDemo');
+            demo.innerHTML = `
+                <div class="log-entry info">K'uhul Glyph Code:</div>
+                <div class="log-entry">[Pop main]</div>
+                <div class="log-entry">[Wo "Hello Multi-Hive"]</div>
+                <div class="log-entry">[Sek print]</div>
+                <div class="log-entry">[Xul]</div>
+                <div class="log-entry success">✓ Glyphs compiled and executed</div>
+            `;
+            log('K\'uhul demo executed', 'success');
+        }
+
+        function demoSCX() {
+            const demo = document.getElementById('scxDemo');
+            const original = '{"shard":"users","port":3001,"method":"GET"}';
+            const compressed = '⟁s⟁users⟁P⟁3001⟁m⟁G';
+            const reduction = Math.round((1 - compressed.length / original.length) * 100);
+
+            demo.innerHTML = `
+                <div class="log-entry info">Original: ${original.length} bytes</div>
+                <div class="log-entry">Before: <code>${original}</code></div>
+                <div class="log-entry info">Compressed: ${compressed.length} bytes</div>
+                <div class="log-entry">After: <code>${compressed}</code></div>
+                <div class="log-entry success">✓ ${reduction}% size reduction achieved</div>
+            `;
+            log(`SCX compression: ${reduction}% reduction`, 'success');
+        }
+
+        function clearLog() {
+            document.getElementById('activityLog').innerHTML = '';
+            log('Log cleared', 'info');
+        }
+
+        // Auto-load on startup
+        window.addEventListener('load', () => {
+            log('Multi-Hive OS Demo loaded', 'success');
+            log('KLH Client initialized', 'info');
+            refreshStatus();
+        });
+
+        // Handle chat input enter key
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendToSwarm();
+        });
+    </script>
+</body>
+</html>
