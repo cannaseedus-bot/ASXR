@@ -77,6 +77,37 @@ export class CrownAPI {
           await this.fineTuneModel(req, res);
           break;
 
+        // GitHub integration
+        case 'github/clone':
+          await this.cloneGitHubRepo(req, res);
+          break;
+
+        case 'github/list':
+          await this.listGitHubRepos(req, res);
+          break;
+
+        case 'github/popular':
+          await this.getPopularRepos(req, res);
+          break;
+
+        // HuggingFace integration
+        case 'huggingface/download':
+          await this.downloadHFModel(req, res);
+          break;
+
+        case 'huggingface/list':
+          await this.listHFModels(req, res);
+          break;
+
+        case 'huggingface/popular':
+          await this.getPopularHFModels(req, res);
+          break;
+
+        // Colab integration
+        case 'colab/generate':
+          await this.generateColabNotebook(req, res);
+          break;
+
         default:
           this.respondJSON(res, 404, { error: 'Crown endpoint not found' });
       }
@@ -326,6 +357,87 @@ export class CrownAPI {
 
     this.respondJSON(res, 200, {
       message: 'Modelfile generated for fine-tuning',
+      ...result
+    });
+  }
+
+  /**
+   * Clone GitHub repository
+   */
+  async cloneGitHubRepo(req, res) {
+    const body = await this.readBody(req);
+    const { repoUrl, options } = JSON.parse(body);
+
+    const shard = await this.modelManager.cloneGitHubRepo(repoUrl, options);
+
+    this.respondJSON(res, 200, {
+      message: 'Repository cloned successfully',
+      shard
+    });
+  }
+
+  /**
+   * List GitHub repos
+   */
+  async listGitHubRepos(req, res) {
+    const repos = await this.modelManager.github.listRepos();
+    this.respondJSON(res, 200, { repos });
+  }
+
+  /**
+   * Get popular GitHub repos
+   */
+  async getPopularRepos(req, res) {
+    const { POPULAR_REPOS } = await import('./github-integration.js');
+    this.respondJSON(res, 200, { repos: POPULAR_REPOS });
+  }
+
+  /**
+   * Download HuggingFace model
+   */
+  async downloadHFModel(req, res) {
+    const body = await this.readBody(req);
+    const { modelId, options } = JSON.parse(body);
+
+    const shard = await this.modelManager.downloadHuggingFaceModel(modelId, options);
+
+    this.respondJSON(res, 200, {
+      message: 'Model downloaded successfully',
+      shard
+    });
+  }
+
+  /**
+   * List HuggingFace models
+   */
+  async listHFModels(req, res) {
+    const models = await this.modelManager.huggingface.listModels();
+    this.respondJSON(res, 200, { models });
+  }
+
+  /**
+   * Get popular HuggingFace models
+   */
+  async getPopularHFModels(req, res) {
+    const { POPULAR_HF_MODELS } = await import('./huggingface-integration.js');
+    this.respondJSON(res, 200, { models: POPULAR_HF_MODELS });
+  }
+
+  /**
+   * Generate Colab notebook
+   */
+  async generateColabNotebook(req, res) {
+    const body = await this.readBody(req);
+    const { crownName, modelId, options } = JSON.parse(body);
+
+    const result = await this.modelManager.generateColabNotebook(
+      crownName,
+      modelId,
+      options
+    );
+
+    this.respondJSON(res, 200, {
+      message: 'Colab notebook generated',
       ...result
     });
   }

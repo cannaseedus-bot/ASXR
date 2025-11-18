@@ -8,6 +8,9 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { CrownLoader } from './crown-loader.js';
+import { GitHubIntegration } from './github-integration.js';
+import { HuggingFaceIntegration } from './huggingface-integration.js';
+import { ColabIntegration } from './colab-integration.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +21,11 @@ export class ModelManager {
     this.modelsDir = path.join(ROOT_DIR, 'agents');
     this.models = new Map();
     this.crownLoader = new CrownLoader();
+
+    // Integrations
+    this.github = new GitHubIntegration(this.modelsDir);
+    this.huggingface = new HuggingFaceIntegration(this.modelsDir);
+    this.colab = new ColabIntegration();
 
     this.initializeModels();
   }
@@ -209,10 +217,77 @@ export class ModelManager {
   }
 
   /**
-   * List all models
+   * Clone GitHub repository as model/shard
    */
-  listModels() {
-    return Array.from(this.models.values());
+  async cloneGitHubRepo(repoUrl, options = {}) {
+    const shard = await this.github.cloneRepo(repoUrl, options);
+
+    // Add to models registry
+    this.models.set(shard.id, {
+      name: shard.id,
+      type: 'github-repo',
+      path: shard.path,
+      ...shard
+    });
+
+    return shard;
+  }
+
+  /**
+   * Download HuggingFace model
+   */
+  async downloadHuggingFaceModel(modelId, options = {}) {
+    const shard = await this.huggingface.downloadModel(modelId, options);
+
+    // Add to models registry
+    this.models.set(shard.id, {
+      name: shard.id,
+      type: 'huggingface',
+      path: shard.path,
+      ...shard
+    });
+
+    return shard;
+  }
+
+  /**
+   * Generate Colab notebook for fine-tuning
+   */
+  async generateColabNotebook(crownName, modelId, options = {}) {
+    const notebook = await this.colab.generateFineTuningNotebook(
+      crownName,
+      modelId,
+      options
+    );
+
+    const outputPath = path.join(
+      this.modelsDir,
+      'colab',
+      `finetune-${modelId.replace('/', '-')}-${crownName}.ipynb`
+    );
+
+    await this.colab.saveNotebook(notebook, outputPath);
+
+    return {
+      notebook,
+      path: outputPath,
+      colabUrl: this.colab.generateColabUrl(outputPath)
+    };
+  }
+
+  /**
+   * List all models (including GitHub & HuggingFace)
+   */
+  async listModels() {
+    const localModels = Array.from(this.models.values());
+
+    // Include GitHub repos
+    const githubRepos = await this.github.listRepos();
+
+    // Include HuggingFace models
+    const hfModels = await this.huggingface.listModels();
+
+    return [...localModels, ...githubRepos, ...hfModels];
   }
 
   /**
