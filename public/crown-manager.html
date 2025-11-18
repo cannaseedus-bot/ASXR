@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Crown Manager - Multi-Hive OS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #0ff;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #fc4da6;
+        }
+
+        .crown-icon {
+            text-shadow: 0 0 30px gold;
+            font-size: 1.2em;
+        }
+
+        .tagline {
+            text-align: center;
+            color: #4da6fc;
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0ff;
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border: 2px solid #0ff;
+            background: rgba(0, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 15px #0ff;
+        }
+
+        .tab:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #0ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel h2 {
+            color: #fc4da6;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4dfc4d;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0ff;
+            color: #0ff;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background: rgba(252, 77, 166, 0.2);
+            border: 2px solid #fc4da6;
+            color: #fc4da6;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: rgba(252, 77, 166, 0.4);
+            box-shadow: 0 0 15px #fc4da6;
+        }
+
+        .btn-primary {
+            border-color: #4dfc4d;
+            color: #4dfc4d;
+            background: rgba(77, 252, 77, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: rgba(77, 252, 77, 0.4);
+            box-shadow: 0 0 15px #4dfc4d;
+        }
+
+        .list-item {
+            background: rgba(0, 100, 100, 0.1);
+            border: 1px solid #0ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .list-item h4 {
+            color: #fc4da6;
+            margin-bottom: 5px;
+        }
+
+        .list-item-info {
+            font-size: 12px;
+            color: #888;
+            margin: 3px 0;
+        }
+
+        .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4dfc4d;
+            display: inline-block;
+            box-shadow: 0 0 10px #4dfc4d;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .log {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-entry.success { color: #4dfc4d; }
+        .log-entry.error { color: #fc4d4d; }
+        .log-entry.info { color: #4da6fc; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #0ff;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drop-zone:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #fc4da6;
+        }
+
+        .drop-zone.dragover {
+            background: rgba(252, 77, 166, 0.2);
+            border-color: #fc4da6;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: rgba(0, 100, 100, 0.2);
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        code {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="crown-icon">👑</span> AI Crown Manager <span class="crown-icon">👑</span></h1>
+        <div class="tagline">Build specialized AI agents with Crown-powered knowledge</div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('models')">📦 Models</div>
+            <div class="tab" onclick="switchTab('crowns')">👑 Crowns</div>
+            <div class="tab" onclick="switchTab('agents')">🤖 Agents</div>
+            <div class="tab" onclick="switchTab('finetune')">⚡ Fine-Tune</div>
+        </div>
+
+        <!-- Models Tab -->
+        <div id="tab-models" class="tab-content active">
+            <div class="grid">
+                <div class="panel">
+                    <h2>Upload Model</h2>
+                    <div class="form-group">
+                        <label>Model Name</label>
+                        <input type="text" id="modelName" placeholder="my-model">
+                    </div>
+                    <div class="form-group">
+                        <label>Model Type</label>
+                        <select id="modelType">
+                            <option value="qwen">Qwen (Transformers)</option>
+                            <option value="gguf">GGUF (llama.cpp)</option>
+                            <option value="onnx">ONNX</option>
+                            <option value="cline">Cline (Java)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="drop-zone" id="modelDropZone">
+                        <div>📁 Drag & drop model files here</div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #888;">or click to browse</div>
+                        <input type="file" id="modelFileInput" multiple style="display: none;">
+                    </div>
+                    <div id="modelFileList" class="file-list"></div>
+                    <button class="btn-primary" onclick="uploadModel()">Upload Model</button>
+                </div>
+
+                <div class="panel">
+                    <h2>Installed Models</h2>
+                    <div id="modelsList"></div>
+                    <button onclick="refreshModels()">Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crowns Tab -->
+        <div id="tab-crowns" class="tab-content">
+            <div class="grid">
+                <div class="panel">
+                    <h2>Create Crown</h2>
+                    <div class="form-group">
+                        <label>Crown Name</label>
+                        <input type="text" id="crownName" placeholder="my-crown">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="crownDescription" placeholder="Expert in..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>System Prompt</label>
+                        <textarea id="crownSystemPrompt" placeholder="You are an expert in..."></textarea>
+                    </div>
+                    <div class="drop-zone" id="crownDropZone">
+                        <div>📚 Drag & drop knowledge files</div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #888;">PDF, TXT, MD, JSON, JS, PY, PHP, HTML...</div>
+                        <input type="file" id="crownFileInput" multiple style="display: none;">
+                    </div>
+                    <div id="crownFileList" class="file-list"></div>
+                    <button class="btn-primary" onclick="buildCrown()">Build Crown</button>
+                </div>
+
+                <div class="panel">
+                    <h2>Available Crowns</h2>
+                    <div id="crownsList"></div>
+                    <button onclick="refreshCrowns()">Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents Tab -->
+        <div id="tab-agents" class="tab-content">
+            <div class="grid">
+                <div class="panel">
+                    <h2>Create Agent</h2>
+                    <div class="form-group">
+                        <label>Agent Name</label>
+                        <input type="text" id="agentName" placeholder="my-ai-agent">
+                    </div>
+                    <div class="form-group">
+                        <label>Select Model</label>
+                        <select id="agentModel"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Crown (Optional)</label>
+                        <select id="agentCrown">
+                            <option value="">No Crown</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Temperature</label>
+                        <input type="text" id="agentTemperature" value="0.7">
+                    </div>
+                    <button class="btn-primary" onclick="createAgent()">Create Agent</button>
+                </div>
+
+                <div class="panel">
+                    <h2>Active Agents</h2>
+                    <div id="agentsList"></div>
+                    <button onclick="refreshAgents()">Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fine-Tune Tab -->
+        <div id="tab-finetune" class="tab-content">
+            <div class="panel">
+                <h2>Fine-Tune Ollama Model with Crown</h2>
+                <div class="form-group">
+                    <label>Base Ollama Model</label>
+                    <input type="text" id="baseModel" placeholder="llama2" value="llama2">
+                </div>
+                <div class="form-group">
+                    <label>Crown to Use</label>
+                    <select id="finetuneC rown"></select>
+                </div>
+                <div class="form-group">
+                    <label>New Model Name</label>
+                    <input type="text" id="newModelName" placeholder="llama2-asx">
+                </div>
+                <button class="btn-primary" onclick="fineTuneModel()">Generate Modelfile</button>
+
+                <div class="panel" style="margin-top: 20px;">
+                    <h3>How it Works</h3>
+                    <div style="color: #888; line-height: 1.8;">
+                        <p>1. Select a base Ollama model (e.g., llama2, mistral)</p>
+                        <p>2. Choose a Crown with your knowledge/lore/data</p>
+                        <p>3. System generates an Ollama Modelfile</p>
+                        <p>4. Run: <code>ollama create new-model -f modelfile</code></p>
+                        <p>5. Your fine-tuned model is ready!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="panel">
+            <h2>Activity Log</h2>
+            <div id="activityLog" class="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // Logging
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('activityLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('activityLog').innerHTML = '';
+        }
+
+        // File upload handlers
+        function setupDropZone(dropZoneId, fileInputId, fileListId) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(fileInputId);
+            const fileList = document.getElementById(fileListId);
+
+            dropZone.onclick = () => fileInput.click();
+
+            dropZone.ondragover = (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            };
+
+            dropZone.ondragleave = () => {
+                dropZone.classList.remove('dragover');
+            };
+
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                fileInput.files = e.dataTransfer.files;
+                displayFiles(fileListId, fileInput.files);
+            };
+
+            fileInput.onchange = () => {
+                displayFiles(fileListId, fileInput.files);
+            };
+        }
+
+        function displayFiles(listId, files) {
+            const fileList = document.getElementById(listId);
+            fileList.innerHTML = '';
+
+            Array.from(files).forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                fileList.appendChild(div);
+            });
+        }
+
+        // Model management
+        async function uploadModel() {
+            const name = document.getElementById('modelName').value;
+            const type = document.getElementById('modelType').value;
+            const files = document.getElementById('modelFileInput').files;
+
+            if (!name || files.length === 0) {
+                log('Please provide model name and files', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('modelName', name);
+            formData.append('modelType', type);
+
+            Array.from(files).forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                log(`Uploading model "${name}"...`, 'info');
+                const response = await fetch('/crown/models/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                log(`Model "${name}" uploaded successfully!`, 'success');
+                refreshModels();
+            } catch (err) {
+                log(`Error uploading model: ${err.message}`, 'error');
+            }
+        }
+
+        async function refreshModels() {
+            try {
+                const response = await fetch('/crown/models/list');
+                const { models } = await response.json();
+
+                const listEl = document.getElementById('modelsList');
+                const agentModelSelect = document.getElementById('agentModel');
+
+                listEl.innerHTML = '';
+                agentModelSelect.innerHTML = '<option value="">Select model...</option>';
+
+                models.forEach(model => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <h4>${model.name}</h4>
+                        <div class="list-item-info">Type: ${model.type}</div>
+                        <div class="list-item-info">Framework: ${model.framework}</div>
+                        <div class="list-item-info">Files: ${model.files.length}</div>
+                    `;
+                    listEl.appendChild(div);
+
+                    const option = document.createElement('option');
+                    option.value = model.name;
+                    option.textContent = `${model.name} (${model.type})`;
+                    agentModelSelect.appendChild(option);
+                });
+
+                log(`Loaded ${models.length} models`, 'info');
+            } catch (err) {
+                log(`Error loading models: ${err.message}`, 'error');
+            }
+        }
+
+        // Crown management
+        async function buildCrown() {
+            const name = document.getElementById('crownName').value;
+            const description = document.getElementById('crownDescription').value;
+            const systemPrompt = document.getElementById('crownSystemPrompt').value;
+            const files = document.getElementById('crownFileInput').files;
+
+            if (!name) {
+                log('Please provide crown name', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('crownName', name);
+            formData.append('description', description);
+            formData.append('systemPrompt', systemPrompt);
+
+            Array.from(files).forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                log(`Building Crown "${name}"...`, 'info');
+                const response = await fetch('/crown/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                log(`Crown "${name}" built successfully!`, 'success');
+                refreshCrowns();
+            } catch (err) {
+                log(`Error building Crown: ${err.message}`, 'error');
+            }
+        }
+
+        async function refreshCrowns() {
+            try {
+                const response = await fetch('/crown/list');
+                const { crowns } = await response.json();
+
+                const listEl = document.getElementById('crownsList');
+                const agentCrownSelect = document.getElementById('agentCrown');
+                const finetuneCrownSelect = document.getElementById('finetuneCrown');
+
+                listEl.innerHTML = '';
+                agentCrownSelect.innerHTML = '<option value="">No Crown</option>';
+                finetuneCrownSelect.innerHTML = '<option value="">Select Crown...</option>';
+
+                crowns.forEach(crown => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <h4>${crown.name}</h4>
+                        <div class="list-item-info">Version: ${crown.version}</div>
+                        <div class="list-item-info">Type: ${crown.type}</div>
+                    `;
+                    listEl.appendChild(div);
+
+                    const option = document.createElement('option');
+                    option.value = crown.name;
+                    option.textContent = crown.name;
+                    agentCrownSelect.appendChild(option);
+                    finetuneCrownSelect.appendChild(option.cloneNode(true));
+                });
+
+                log(`Loaded ${crowns.length} Crowns`, 'info');
+            } catch (err) {
+                log(`Error loading Crowns: ${err.message}`, 'error');
+            }
+        }
+
+        // Agent management
+        async function createAgent() {
+            const name = document.getElementById('agentName').value;
+            const model = document.getElementById('agentModel').value;
+            const crown = document.getElementById('agentCrown').value;
+            const temperature = parseFloat(document.getElementById('agentTemperature').value);
+
+            if (!name || !model) {
+                log('Please provide agent name and model', 'error');
+                return;
+            }
+
+            try {
+                log(`Creating agent "${name}"...`, 'info');
+                const response = await fetch('/crown/agents/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        agentName: name,
+                        modelName: model,
+                        crownName: crown || null,
+                        options: { temperature }
+                    })
+                });
+
+                const result = await response.json();
+                log(`Agent "${name}" created successfully!`, 'success');
+                refreshAgents();
+            } catch (err) {
+                log(`Error creating agent: ${err.message}`, 'error');
+            }
+        }
+
+        async function refreshAgents() {
+            try {
+                const response = await fetch('/crown/agents/list');
+                const { agents } = await response.json();
+
+                const listEl = document.getElementById('agentsList');
+                listEl.innerHTML = '';
+
+                agents.forEach(agent => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <h4><span class="status"></span> ${agent.name}</h4>
+                        <div class="list-item-info">Model: ${agent.model} (${agent.modelType})</div>
+                        <div class="list-item-info">Crown: ${agent.crown || 'None'}</div>
+                        <div class="list-item-info">Temperature: ${agent.config.temperature}</div>
+                    `;
+                    listEl.appendChild(div);
+                });
+
+                log(`Loaded ${agents.length} agents`, 'info');
+            } catch (err) {
+                log(`Error loading agents: ${err.message}`, 'error');
+            }
+        }
+
+        // Fine-tuning
+        async function fineTuneModel() {
+            const baseModel = document.getElementById('baseModel').value;
+            const crown = document.getElementById('finetuneCrown').value;
+            const newName = document.getElementById('newModelName').value;
+
+            if (!baseModel || !crown || !newName) {
+                log('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                log(`Generating Modelfile for "${newName}"...`, 'info');
+                const response = await fetch('/crown/finetune', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        baseModel,
+                        crownName: crown,
+                        newModelName: newName
+                    })
+                });
+
+                const result = await response.json();
+                log(`Modelfile generated: ${result.modelfile}`, 'success');
+                log(`Run: ${result.command}`, 'info');
+            } catch (err) {
+                log(`Error fine-tuning: ${err.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            setupDropZone('modelDropZone', 'modelFileInput', 'modelFileList');
+            setupDropZone('crownDropZone', 'crownFileInput', 'crownFileList');
+
+            refreshModels();
+            refreshCrowns();
+            refreshAgents();
+
+            log('Crown Manager initialized', 'success');
+        });
+    </script>
+</body>
+</html>

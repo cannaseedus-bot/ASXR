@@ -14,6 +14,7 @@ import mime from 'mime-types';
 import { HiveOrchestrator } from './core/hive-orchestrator.js';
 import { VirtualMeshRouter } from './core/virtual-mesh.js';
 import { AISwarmServer } from './core/ai-swarm.js';
+import { CrownAPI } from './crown/crown-api.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +30,7 @@ const DEV_MODE = args.includes('--dev') || process.env.ASXR_MODE === 'developmen
 const hive = new HiveOrchestrator();
 const mesh = new VirtualMeshRouter(hive);
 const aiSwarm = new AISwarmServer(hive);
+const crownAPI = new CrownAPI();
 
 /**
  * HTTP Server with REST API and static file serving
@@ -62,6 +64,12 @@ const server = http.createServer(async (req, res) => {
   // AI Swarm Routes
   if (url.pathname.startsWith('/ai/')) {
     await aiSwarm.handleRequest(req, res, url);
+    return;
+  }
+
+  // Crown API Routes (model/agent/crown management)
+  if (url.pathname.startsWith('/crown/')) {
+    await crownAPI.handleRequest(req, res, url);
     return;
   }
 
