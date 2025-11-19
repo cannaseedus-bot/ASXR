@@ -1,0 +1,44 @@
+{
+  "name": "asxr-multi-hive",
+  "version": "1.0.0",
+  "description": "Multi-Hive Complete Stack - KLH + XJSON + K'uhul + SCX - Full-stack AI app builder with distributed OS in the browser",
+  "main": "server/index.js",
+  "type": "module",
+  "bin": {
+    "asxr": "./bin/asxr.js",
+    "multi-hive": "./bin/asxr.js"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js --dev",
+    "build": "node scripts/build.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "multi-hive",
+    "klh",
+    "xjson",
+    "kuhul",
+    "scx",
+    "distributed-os",
+    "microservices",
+    "ai-server",
+    "chat-swarm",
+    "full-stack"
+  ],
+  "author": "ASXR Team",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.16.0",
+    "mime-types": "^2.1.35",
+    "formidable": "^3.5.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cannaseedus-bot/ASXR.git"
+  }
+}
