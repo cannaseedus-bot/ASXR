@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kuhul-os-kernel 
+  xmlns="https://schema.asx-os.org/kuhul-kernel"
+  xmlns:geo="https://schema.asx-os.org/geometric-scheduling"
+  xmlns:π="https://schema.asx-os.org/pi-resource"
+  xmlns:φ="https://schema.asx-os.org/phi-balance"
+  xmlns:svg3d="https://schema.asx-os.org/svg3d-processes"
+  xmlns:asxr="https://schema.asx-os.org/asxr-scheduler"
+  version="1.0">
+
+<!-- 
+  K'UHUL OS KERNEL
+  Geometric Process Scheduling & Resource Management
+  Based on SVG-3D Tensor Geometry & ASX-R Reasoning
+-->
+
+<kernel-axioms>
+  
+  <!-- PROCESS AS GEODESIC FLOW -->
+  <axiom id="process-geodesic">
+    <statement>Every computational process P corresponds to a geodesic γ_P on process manifold M</statement>
+    <properties>
+      <property>Length(γ_P) = execution time</property>
+      <property>Energy(γ_P) = ∫ |γ̇_P|² dt = CPU cycles</property>
+      <property>Curvature(γ_P) = algorithmic complexity</property>
+    </properties>
+  </axiom>
+  
+  <!-- RESOURCE AS METRIC TENSOR -->
+  <axiom id="resource-metric">
+    <statement>System resources R are encoded as Riemannian metric g_R on M</statement>
+    <components>
+      <component>CPU: g_CPU = diag(clock_speed, cores, cache)</component>
+      <component>Memory: g_MEM = volume form scaling</component>
+      <component>IO: g_IO = connection coefficients for data flow</component>
+    </components>
+  </axiom>
+  
+  <!-- SCHEDULING AS VARIATIONAL PROBLEM -->
+  <axiom id="scheduling-variational">
+    <statement>Optimal scheduling minimizes total energy: min Σ_P Energy(γ_P) subject to resource constraints</statement>
+    <mathematical-form>Euler-Lagrange equations on process manifold</mathematical-form>
+  </axiom>
+</kernel-axioms>
+
+<!-- ============================================= -->
+<!-- PROCESS MANIFOLD ARCHITECTURE -->
+<!-- ============================================= -->
+
+<process-manifold>
+  
+  <!-- BASE MANIFOLD STRUCTURE -->
+  <structure>
+    <dimensions>
+      <dimension id="time">S¹ (circular time dimension)</dimension>
+      <dimension id="cpu">ℝ⁺ (CPU availability)</dimension>
+      <dimension id="memory">ℝ⁺ (memory space)</dimension>
+      <dimension id="io">ℝ⁺ (IO bandwidth)</dimension>
+      <dimension id="priority">[0,π] (π-scaled priority)</dimension>
+    </dimensions>
+    
+    <topology>M = S¹ × ℝ⁺ × ℝ⁺ × ℝ⁺ × [0,π]</topology>
+    
+    <metric>
+      <formula>ds² = -dt² + α·dCPU² + β·dMEM² + γ·dIO² + δ·dPRIO²</formula>
+      <coefficients>
+        <coefficient>α = 1/clock_speed²</coefficient>
+        <coefficient>β = 1/memory_bandwidth²</coefficient>
+        <coefficient>γ = 1/io_throughput²</coefficient>
+        <coefficient>δ = π²/(max_priority²)</coefficient>
+      </coefficients>
+    </metric>
+  </structure>
+  
+  <!-- PROCESS REPRESENTATION -->
+  <process-representation>
+    <geodesic-equation>∇_γ̇ γ̇ = F(γ) (force = resource demands)</geodesic-equation>
+    
+    <svg3d-encoding>
+      <g class="process-geodesic">
+        <path d="M t₁,res₁ C ... tₙ,resₙ" 
+              data-pid="1234" 
+              data-priority="π/3"
+              data-energy="∫|γ̇|²" />
+        <animateMotion 
+          path="..."
+          dur="execution_time"
+          repeatCount="indefinite" />
+      </g>
+    </svg3d-encoding>
+    
+    <process-types>
+      <type id="cpu-bound">
+        <geometry>Geodesic primarily in CPU dimension</geometry>
+        <characteristic>High |γ̇_CPU|, low curvature</characteristic>
+      </type>
+      
+      <type id="io-bound">
+        <geometry>Winding geodesic in IO dimension</geometry>
+        <characteristic>High torsion, frequent context switches</characteristic>
+      </type>
+      
+      <type id="memory-intensive">
+        <geometry>Wide geodesic in memory dimension</geometry>
+        <characteristic>Large sectional area, high volume</characteristic>
+      </type>
+      
+      <type id="interactive">
+        <geometry>Geodesic with frequent priority changes</geometry>
+        <characteristic>High curvature in priority dimension</characteristic>
+      </type>
+    </process-types>
+  </process-representation>
+</process-manifold>
+
+<!-- ============================================= -->
+<!-- GEOMETRIC SCHEDULING ALGORITHMS -->
+<!-- ============================================= -->
+
+<geometric-schedulers>
+  
+  <!-- RICCI FLOW SCHEDULER (LOAD BALANCING) -->
+  <scheduler id="ricci-flow">
+    <principle>Flow metric toward constant curvature to balance load</principle>
+    
+    <evolution-equation>∂g/∂t = -2Ric(g) + λg</evolution-equation>
+    
+    <interpretation>
+      <term>Ric(g) = Ricci curvature = resource contention</term>
+      <term>λ = normalization constant = total resource capacity</term>
+      <term>Fixed point: Ric(g) = (λ/2)g (balanced load)</term>
+    </interpretation>
+    
+    <implementation>
+      <step>Measure Ricci curvature at each scheduling quantum</step>
+      <step>Adjust process geodesics to reduce high curvature</step>
+      <step>Migrate processes from high to low curvature regions</step>
+    </implementation>
+    
+    <svg3d-visualization>
+      <!-- Heat map of Ricci curvature on process manifold -->
+      <g class="ricci-heatmap">
+        <radialGradient id="curvature-gradient">
+          <stop offset="0%" stop-color="#00FF00" /> <!-- Low curvature -->
+          <stop offset="50%" stop-color="#FFFF00" /> <!-- Medium -->
+          <stop offset="100%" stop-color="#FF0000" /> <!-- High curvature -->
+        </radialGradient>
+        <circle cx="50%" cy="50%" r="45%" fill="url(#curvature-gradient)" />
+      </g>
+    </svg3d-visualization>
+  </scheduler>
+  
+  <!-- GEODESIC PACKING SCHEDULER (RESOURCE ALLOCATION) -->
+  <scheduler id="geodesic-packing">
+    <principle>Pack process geodesics to maximize resource utilization</principle>
+    
+    <optimization-problem>
+      <maximize>Packing density ρ = (Σ volume(γ_P)) / volume(M)</maximize>
+      <constraints>
+        <constraint>γ_P ∩ γ_Q = ∅ for P ≠ Q (no resource conflicts)</constraint>
+        <constraint>Length(γ_P) ≤ deadline_P</constraint>
+      </constraints>
+    </optimization-problem>
+    
+    <algorithm>
+      <step>Compute Voronoi decomposition of process manifold</step>
+      <step>Allocate each process to its Voronoi cell</step>
+      <step>Adjust cell boundaries to balance loads</step>
+      <step>Schedule processes within their cells</step>
+    </algorithm>
+    
+    <svg3d-representation>
+      <!-- Voronoi cells as SVG polygons -->
+      <g class="voronoi-partition">
+        <polygon class="cell-1" points="..." data-pid="1234" />
+        <polygon class="cell-2" points="..." data-pid="5678" />
+        <!-- ... -->
+      </g>
+    </svg3d-representation>
+  </scheduler>
+  
+  <!-- HOLONOMY-AWARE SCHEDULER (CONTEXT SWITCH OPTIMIZATION) -->
+  <scheduler id="holonomy-scheduler">
+    <principle>Minimize holonomy (phase shift) during context switches</principle>
+    
+    <mathematical-basis>
+      <concept>Parallel transport around scheduling loop</concept>
+      <holonomy>H = exp(∮ ω) where ω = connection 1-form</holonomy>
+      <goal>Minimize |H - I| (identity = no context switch overhead)</goal>
+    </mathematical-basis>
+    
+    <optimization>
+      <method>Group processes with similar connection coefficients</method>
+      <method>Schedule to minimize total holonomy around each core</method>
+      <benefit>Reduced cache misses, TLB flushes, pipeline stalls</benefit>
+    </optimization>
+  </scheduler>
+  
+  <!-- φ-HARMONIC SCHEDULER (FAIRNESS) -->
+  <scheduler id="phi-harmonic">
+    <principle>Allocate resources in golden ratio proportions for optimal fairness</principle>
+    
+    <allocation-rule>
+      <formula>Resource_P / Resource_Q ≈ φ for all adjacent priority processes</formula>
+      <derivation>Minimizes envy-free measure in resource allocation</derivation>
+    </allocation-rule>
+    
+    <implementation>
+      <step>Arrange processes in priority order</step>
+      <step>Allocate resources proportionally to φ-sequence</step>
+      <step>Adjust to satisfy deadlines and constraints</step>
+    </implementation>
+    
+    <fairness-metric>
+      <definition>F = 1 - max_{P,Q} |(R_P/R_Q) - φ|</definition>
+      <range>0 (unfair) to 1 (perfect φ-fairness)</range>
+    </fairness-metric>
+  </scheduler>
+</geometric-schedulers>
+
+<!-- ============================================= -->
+<!-- RESOURCE MANAGEMENT AS GEOMETRY -->
+<!-- ============================================= -->
+
+<resource-geometry>
+  
+  <!-- CPU GEOMETRY -->
+  <resource type="cpu">
+    <representation>Tangent space T_pM at each point p ∈ M</representation>
+    
+    <allocation-mechanism>
+      <method>Parallel transport of process velocity vectors</method>
+      <constraint>|v_P| ≤ clock_speed at each point</constraint>
+    </allocation-mechanism>
+    
+    <contention-detection>
+      <indicator>Sectional curvature K(u,v) where u,v are process velocities</indicator>
+      <interpretation>K &gt; 0: processes converge (contention)</interpretation>
+      <interpretation>K &lt; 0: processes diverge (parallelizable)</interpretation>
+    </contention-detection>
+  </resource>
+  
+  <!-- MEMORY GEOMETRY -->
+  <resource type="memory">
+    <representation>Volume form ω = √|g| dx¹∧...∧dxⁿ</representation>
+    
+    <allocation>Assign subvolumes V_P ⊂ M to processes</allocation>
+    
+    <fragmentation-measure>
+      <definition>Fragmentation = 1 - (largest contiguous volume)/(total free volume)</definition>
+      <geometric-analogy>Genus of free space manifold</geometric-analogy>
+    </fragmentation-measure>
+    
+    <compaction-as-flow>
+      <process>Ricci flow on free space metric</process>
+      <effect>Smooths boundaries, reduces genus</effect>
+    </compaction-as-flow>
+  </resource>
+  
+  <!-- IO GEOMETRY -->
+  <resource type="io">
+    <representation>Connection ∇ on tangent bundle with torsion</representation>
+    
+    <bandwidth-allocation>
+      <method>Holonomy around IO loops</method>
+      <constraint>Holonomy ≤ maximum throughput</constraint>
+    </bandwidth-allocation>
+    
+    <latency-measure>
+      <definition>Latency = length of shortest geodesic to data location</definition>
+      <optimization>Minimize geodesic distance in IO subspace</optimization>
+    </latency-measure>
+  </resource>
+  
+  <!-- ENERGY GEOMETRY -->
+  <resource type="energy">
+    <representation>Lagrangian L(γ,γ̇) = ½g(γ̇,γ̇) - V(γ)</representation>
+    
+    <power-management>
+      <method>Variational principle: δ∫L dt = 0</method>
+      <constraint>Total energy ≤ power budget</constraint>
+    </power-management>
+    
+    <energy-efficiency>
+      <metric>η = (useful work)/(total energy) = (∫g(γ̇,γ̇) dt)/(∫V(γ) dt)</metric>
+      <optimization>Find geodesics that minimize action for given work</optimization>
+    </energy-efficiency>
+  </resource>
+</resource-geometry>
+
+<!-- ============================================= -->
+<!-- ASX-R REASONING FOR SCHEDULING DECISIONS -->
+<!-- ============================================= -->
+
+<asxr-scheduling>
+  
+  <!-- SCHEDULING THEOREM PROVER -->
+  <component id="scheduling-theorem-prover">
+    <purpose>Prove scheduling decisions are optimal/feasible</purpose>
+    
+    <theorem-types>
+      <type id="deadline-feasibility">
+        <statement>Process set Γ can be scheduled to meet all deadlines</statement>
+        <proof-method>Construct geodesic packing on process manifold</proof-method>
+      </type>
+      
+      <type id="resource-sufficiency">
+        <statement>Available resources R sufficient for process set Γ</statement>
+        <proof-method>Volume comparison: Σ volume(γ_P) ≤ volume(M_R)</proof-method>
+      </type>
+      
+      <type id="fairness-guarantee">
+        <statement>Scheduler S guarantees φ-fairness bound ε</statement>
+        <proof-method>Show |R_P/R_Q - φ| &lt; ε for all P,Q</proof-method>
+      </type>
+    </theorem-types>
+    
+    <svg3d-proof-representation>
+      <g class="scheduling-proof">
+        <path class="feasibility-boundary" d="..." />
+        <g class="process-packing">
+          <path class="process-1" d="..." />
+          <path class="process-2" d="..." />
+          <!-- ... -->
+        </g>
+      </g>
+    </svg3d-proof-representation>
+  </component>
+  
+  <!-- CONFLICT RESOLUTION VIA GEOMETRIC PROOF -->
+  <component id="conflict-resolution">
+    <scenario>Two processes request same resource</scenario>
+    
+    <resolution-process>
+      <step>Encode conflict as intersecting geodesics</step>
+      <step>Generate ASX-R proof for each scheduling alternative</step>
+      <step>Compare proof geometries (length, curvature, harmony)</step>
+      <step>Select alternative with optimal proof metrics</step>
+    </resolution-process>
+    
+    <metrics-for-decision>
+      <metric>Total geodesic length (minimize)</metric>
+      <metric>Maximum curvature (minimize)</metric>
+      <metric>φ-harmony score (maximize)</metric>
+      <metric>Proof simplicity (Euler characteristic)</metric>
+    </metrics-for-decision>
+  </component>
+  
+  <!-- SCHEDULING POLICY VERIFICATION -->
+  <component id="policy-verification">
+    <purpose>Verify scheduler adheres to OS policies</purpose>
+    
+    <policy-types>
+      <policy id="priority-inversion-prevention">
+        <statement>No low-priority process should block high-priority indefinitely</statement>
+        <geometric-condition>Geodesics don't form blocking cycles in priority subspace</geometric-condition>
+      </policy>
+      
+      <policy id="starvation-prevention">
+        <statement>All processes make progress</statement>
+        <geometric-condition>Every geodesic has bounded acceleration</geometric-condition>
+      </policy>
+      
+      <policy id="real-time-guarantees">
+        <statement>Deadlines met for real-time processes</statement>
+        <geometric-condition>Geodesic length ≤ deadline in time dimension</geometric-condition>
+      </policy>
+    </policy-types>
+  </component>
+</asxr-scheduling>
+
+<!-- ============================================= -->
+<!-- SVG-3D KERNEL VISUALIZATION (DIAGNOSTIC) -->
+<!-- ============================================= -->
+
+<kernel-visualization>
+  <!-- NOTE: For system monitoring only, not for scheduling decisions -->
+  
+  <!-- PROCESS MANIFOLD VIEW -->
+  <view id="manifold-overview">
+    <elements>
+      <element>
+        <geometry><path d="M0,0 L100,100" /></geometry>
+        <semantic>Process geodesic (execution path)</semantic>
+      </element>
+      
+      <element>
+        <geometry><circle cx="50" cy="50" r="5" /></geometry>
+        <semantic>Process state (current position)</semantic>
+      </element>
+      
+      <element>
+        <geometry><polygon points="0,0 100,0 100,100 0,100" /></geometry>
+        <semantic>Resource allocation region</semantic>
+      </element>
+    </elements>
+    
+    <color-coding>
+      <color hex="#4CAF50">Running processes</color>
+      <color hex="#FF9800">Ready processes</color>
+      <color hex="#F44336">Blocked processes</color>
+      <color hex="#2196F3">Real-time processes</color>
+    </color-coding>
+  </view>
+  
+  <!-- RESOURCE CURVATURE HEATMAP -->
+  <view id="curvature-heatmap">
+    <purpose>Show resource contention as curvature</purpose>
+    
+    <mapping>
+      <curvature-range>[-1, 1]</curvature-range>
+      <color-gradient>Blue (negative) → White (zero) → Red (positive)</color-gradient>
+      <interpretation>
+        Blue: Underutilized resources (parallelization opportunities)
+        Red: Resource contention (bottlenecks)
+      </interpretation>
+    </mapping>
+  </view>
+  
+  <!-- SCHEDULING DECISION TREE -->
+  <view id="decision-tree">
+    <purpose>Show ASX-R proof tree for scheduling decisions</purpose>
+    
+    <representation>
+      <g class="proof-tree">
+        <circle class="decision-node" cx="100" cy="50" r="10" />
+        <path class="decision-branch" d="M100,50 L80,80" />
+        <path class="decision-branch" d="M100,50 L120,80" />
+        <!-- ... -->
+      </g>
+    </representation>
+  </view>
+</kernel-visualization>
+
+<!-- ============================================= -->
+<!-- KERNEL METRICS & OPTIMIZATION -->
+<!-- ============================================= -->
+
+<kernel-metrics>
+  
+  <!-- SCHEDULING EFFICIENCY -->
+  <metric id="geodesic-efficiency">
+    <definition>η_sched = (Σ minimal geodesic lengths) / (Σ actual geodesic lengths)</definition>
+    <range>0 ≤ η ≤ 1 (1 = optimal scheduling)</range>
+    <interpretation>How close to theoretical optimum</interpretation>
+  </metric>
+  
+  <!-- RESOURCE UTILIZATION HARMONY -->
+  <metric id="phi-utilization">
+    <definition>U_φ = 1 - max_{r∈Resources} |(utilization_r) - φ|</definition>
+    <range>0 ≤ U_φ ≤ 1 (1 = perfect φ-balanced utilization)</range>
+  </metric>
+  
+  <!-- CURVATURE LOAD BALANCE -->
+  <metric id="curvature-variance">
+    <definition>σ_K² = (1/vol(M)) ∫ (K - K_mean)² dV</definition>
+    <interpretation>Low variance = well-balanced load</interpretation>
+  </metric>
+  
+  <!-- CONTEXT SWITCH HOLONOMY -->
+  <metric id="holonomy-overhead">
+    <definition>H_avg = average |Holonomy - I| per context switch</definition>
+    <optimization-goal>Minimize H_avg</optimization-goal>
+  </metric>
+  
+  <!-- SCHEDULING FAIRNESS -->
+  <metric id="geometric-fairness">
+    <definition>F_geo = 1 - Gini_coefficient(geodesic_energies)</definition>
+    <range>0 (unfair) to 1 (perfectly fair)</range>
+  </metric>
+</kernel-metrics>
+
+<!-- ============================================= -->
+<!-- REAL-TIME EXTENSIONS -->
+<!-- ============================================= -->
+
+<real-time-extensions>
+  
+  <!-- DEADLINE GEOMETRY -->
+  <concept id="deadline-horizon">
+    <definition>For process P with deadline D, horizon H_P = {p∈M | distance(p, start_P) ≤ D}</definition>
+    
+    <scheduling-condition>
+      <statement>P can meet deadline if ∃ geodesic γ_P ⊂ H_P</statement>
+      <verification>Check geodesic completeness within horizon</verification>
+    </scheduling-condition>
+  </concept>
+  
+  <!-- CRITICALITY GEODESICS -->
+  <concept id="criticality-geodesics">
+    <definition>Critical processes have geodesics that must not be preempted</definition>
+    
+    <protection-mechanism>
+      <method>Allocate geodesic tubes with radius = safety margin</method>
+      <constraint>No other geodesics enter critical tubes</constraint>
+    </protection-mechanism>
+    
+    <svg3d-representation>
+      <g class="critical-tube">
+        <path class="center-geodesic" d="..." />
+        <path class="tube-boundary" d="..." />
+      </g>
+    </svg3d-representation>
+  </concept>
+  
+  <!-- WORST-CASE EXECUTION TIME (WCET) BOUNDS -->
+  <concept id="geometric-wcet">
+    <definition>WCET = maximum geodesic length over all possible inputs</definition>
+    
+    <computation-method>
+      <step>Compute convex hull of reachable states in process manifold</step>
+      <step>Find longest geodesic within convex hull</step>
+      <step>Length = WCET bound</step>
+    </computation-method>
+  </concept>
+</real-time-extensions>
+
+<!-- ============================================= -->
+<!-- DISTRIBUTED SCHEDULING EXTENSION -->
+<!-- ============================================= -->
+
+<distributed-scheduling>
+  
+  <!-- MULTI-NODE PROCESS MANIFOLD -->
+  <concept id="federated-manifold">
+    <structure>M_total = ∪_i M_i where M_i = manifold for node i</structure>
+    
+    <connectivity>
+      <edges>Geodesics between nodes represent network links</edges>
+      <metric>Network latency as connection length</metric>
+    </connectivity>
+    
+    <global-scheduling>
+      <challenge>Schedule across connected manifolds</challenge>
+      <solution>Parallel transport processes between nodes</solution>
+      <optimization>Minimize total geodesic length across network</optimization>
+    </global-scheduling>
+  </concept>
+  
+  <!-- CONSENSUS VIA RICCI FLOW -->
+  <algorithm id="ricci-consensus">
+    <purpose>Reach consensus on global schedule</purpose>
+    
+    <process>
+      <step>Each node computes local Ricci curvature</step>
+      <step>Exchange curvature information with neighbors</step>
+      <step>Apply distributed Ricci flow to balance load globally</step>
+      <step>Convergence when all curvatures equalize</step>
+    </process>
+    
+    <convergence-guarantee>Exponential convergence for connected graph</convergence-guarantee>
+  </algorithm>
+</distributed-scheduling>
+
+<!-- ============================================= -->
+<!-- SECURITY EXTENSIONS -->
+<!-- ============================================= -->
+
+<security-extensions>
+  
+  <!-- PROCESS ISOLATION AS GEODESIC SEPARATION -->
+  <mechanism id="geodesic-isolation">
+    <principle>Prevent information flow between processes</principle>
+    
+    <implementation>
+      <method>Ensure geodesics don't intersect</method>
+      <method>Maintain minimum geodesic distance &gt; security threshold</method>
+      <method>Use convex walls between security domains</method>
+    </implementation>
+    
+    <svg3d-representation>
+      <g class="security-domain">
+        <path class="boundary" d="M0,0 L100,0 L100,100 L0,100 Z" />
+        <g class="processes-inside">...</g>
+      </g>
+    </svg3d-representation>
+  </mechanism>
+  
+  <!-- CAPABILITY GEOMETRY -->
+  <concept id="capability-manifold">
+    <definition>Capabilities = tangent vectors allowing movement in certain directions</definition>
+    
+    <access-control>
+      <method>Process P can only follow geodesics with γ̇ ∈ Capability_P</method>
+      <method>Capabilities form cone in tangent space</method>
+    </access-control>
+  </concept>
+  
+  <!-- INFORMATION FLOW AS HOLONOMY -->
+  <detection id="covert-channel-detection">
+    <principle>Detect unauthorized information flow via holonomy analysis</principle>
+    
+    <method>
+      <step>Monitor parallel transport around scheduling loops</step>
+      <step>Detect anomalous holonomy patterns</step>
+      <step>Flag potential covert channels</step>
+    </method>
+  </detection>
+</security-extensions>
+
+<!-- ============================================= -->
+<!-- KERNEL API & SYSTEM CALLS -->
+<!-- ============================================= -->
+
+<kernel-api>
+  
+  <!-- PROCESS CREATION -->
+  <syscall id="fork-geodesic">
+    <signature>pid_t fork_geodesic(geodesic_spec_t spec)</signature>
+    <parameters>
+      <parameter>spec: Initial tangent vector (resource requirements)</parameter>
+      <parameter>spec: Target endpoint (completion state)</parameter>
+    </parameters>
+    <returns>Process ID (geodesic identifier)</returns>
+  </syscall>
+  
+  <!-- RESOURCE ALLOCATION -->
+  <syscall id="allocate-submanifold">
+    <signature>int allocate_submanifold(pid_t pid, volume_spec_t vol)</signature>
+    <purpose>Allocate region of process manifold to process</purpose>
+  </syscall>
+  
+  <!-- SCHEDULING CONTROL -->
+  <syscall id="set_geodesic_priority">
+    <signature>int set_geodesic_priority(pid_t pid, priority_t prio)</signature>
+    <purpose>Adjust geodesic curvature in priority dimension</purpose>
+  </syscall>
+  
+  <!-- METRIC QUERY -->
+  <syscall id="query_manifold_metrics">
+    <signature>manifold_metrics_t query_manifold_metrics(pid_t pid)</signature>
+    <returns>Geodesic length, curvature, energy, etc.</returns>
+  </syscall>
+  
+  <!-- ASX-R PROOF REQUEST -->
+  <syscall id="request_scheduling_proof">
+    <signature>proof_t request_scheduling_proof(pid_t pid)</signature>
+    <purpose>Get ASX-R proof for current scheduling decision</purpose>
+  </syscall>
+</kernel-api>
+
+</kuhul-os-kernel>
