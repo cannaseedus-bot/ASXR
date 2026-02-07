@@ -1,0 +1,7 @@
+{
+  "$schema": "kuhul-tsg",
+  "version": "1.0.0",
+  "description": "KUHUL-TSG semantic schema placeholder for Micronaut SCO/1 object.",
+  "nodes": [],
+  "edges": []
+}
