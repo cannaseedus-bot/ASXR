@@ -1,0 +1,21 @@
+# SCO/1 object server declaration
+[object]
+name = "micronaut"
+version = "1.0.0"
+standard = "SCO/1"
+state = "INIT"
+root = "."
+
+[io]
+chat = "io/chat.txt"
+stream = "io/stream.txt"
+snapshot_dir = "io/snapshot"
+
+[brains]
+trigrams = "brains/trigrams.json"
+bigrams = "brains/bigrams.json"
+meta_intent_map = "brains/meta-intent-map.json"
+
+[trace]
+trace = "trace/scxq2.trace"
+proof = "proof/scxq2.proof"
