@@ -1,0 +1,19 @@
+magic_items:
+  - name: "Sword of Flame"
+    rarity: rare
+    effect: "+2 to hit, 1d6 fire damage"
+    owned_by: "Thorin the Fighter"
+
+  - name: "Cloak of Shadows"
+    rarity: uncommon
+    effect: "Advantage on Stealth in dim light"
+    owned_by: "Zara the Rogue"
+
+quest_items:
+  - name: "Fragment of Unity (1/7)"
+    description: "Glowing crystal shard, warm to touch"
+    location: "party inventory"
+
+  - name: "Iron King's Seal"
+    description: "Royal signet ring, grants safe passage"
+    location: "Thorin's pouch"
