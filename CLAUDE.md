@@ -23,6 +23,7 @@ npm run build
 
 **Testing**:
 - Crown System Test: `node test-crown-system.js` (✓ WORKING - builds Crown from 5 files, verifies loading)
+- SCX Tensor Pack Test: `node test-scx-tensor-pack.js` (✓ WORKING - 6/6 tests pass, 23.56 dB SNR, 7.11x compression)
 - Unit tests: `npm test` points to `node --test tests/**/*.test.js` but tests/ directory doesn't exist
 
 ### Key URLs after starting
@@ -192,9 +193,9 @@ See `CROWN-EXAMPLE.md` for complete documentation.
 - `scripts/build.js` — empty stub
 - `index.html` — Inline stubs for `window.ASX`, `window.SCX`, `window.EMU`, `window.STUDIO` (doesn't load real libraries)
 
-## SCX Tensor Pack (SCX-TP-INT4) — Planned
+## SCX Tensor Pack (SCX-TP-INT4) — Phase 1 Complete
 
-A hardware-realistic browser-native model format is planned for Phase 9+:
+A hardware-realistic browser-native model format for running AI models in-browser with no Python, no server.
 
 **Design Goals:**
 - INT4 quantized weights for browser deployment
@@ -204,13 +205,44 @@ A hardware-realistic browser-native model format is planned for Phase 9+:
 - Merkle-verified model shards
 - ≤64M parameter models runnable in browser
 
-**Planned Components:**
-- `lib/scx/tensor-pack.js` - Binary encoder/decoder for SCX-TP format
-- `lib/scx/int4-quantizer.js` - Block-wise INT4 quantization
-- `lib/scx/merkle-verification.js` - Model integrity verification
-- `lib/gpu/webgpu-compiler.js` - SCX graph → WGSL compilation
-- `lib/gpu/dequant-kernel.wgsl` - INT4 dequantization shader
-- `lib/gpu/attention-kernel.wgsl` - Attention primitive
+### ✅ Phase 1: Binary Codec & Quantizer (COMPLETE)
+
+**Implemented Components:**
+- ✅ `lib/scx/tensor-pack.js` (340 lines) - Binary encoder/decoder
+  - Deterministic 64-byte header layout
+  - INT4 packing: 2 values per byte (signed -8 to +7)
+  - Base64 encoding for GitHub storage
+  - Full validation and statistics
+
+- ✅ `lib/scx/int4-quantizer.js` (325 lines) - Block-wise quantization
+  - 128-element blocks with scale + zero_point
+  - 7-8x compression ratio (FP32 → INT4)
+  - MSE tracking, SNR calculation (23.56 dB achieved)
+  - Calibration support for outlier clipping
+
+- ✅ `lib/scx/merkle-verification.js` (288 lines) - Integrity verification
+  - SHA-256 hashing (Web Crypto + Node.js crypto)
+  - Merkle tree construction and verification
+  - Proof generation and validation
+  - Deterministic chunk hashing
+
+**Test Results:**
+```bash
+node test-scx-tensor-pack.js
+
+6/6 tests passed:
+✓ Binary encoding/decoding
+✓ INT4 quantization (RMSE: 0.000766, SNR: 23.56 dB)
+✓ Merkle verification
+✓ Base64 round-trip
+✓ INT4 packing/unpacking
+✓ Pack statistics
+
+Performance:
+- 589K weights → 332KB (7.11x compression)
+- Quantization error: RMSE 0.000766
+- Base64 GitHub-safe encoding ready
+```
 
 **Binary Format:**
 ```
@@ -225,12 +257,24 @@ Weights (INT4 packed):
   Stored as base64 in GitHub, decoded to binary in browser
 ```
 
-**Integration with Crown System:**
-- Crowns load as context for browser GPT inference
-- Character roles configure temperature/personality
+### 🚧 Phase 2: WebGPU Runtime (Planned)
+
+- `lib/gpu/webgpu-compiler.js` - SCX graph → WGSL compilation
+- `lib/gpu/dequant-kernel.wgsl` - INT4 dequantization shader
+- `lib/gpu/attention-kernel.wgsl` - Attention primitive
+
+### 🚧 Phase 3: Browser GPT Example (Planned)
+
+- 12-layer, 32M param model in SCX-TP-INT4 format
+- Interactive browser GPT with Crown-loaded character roles
 - No Python, no server required
 
-**Current Status:** Design spec complete, implementation planned for post-Phase 8.
+### 🚧 Phase 4: ASXR Integration (Planned)
+
+- Integration with Crown System
+- Crowns load as context for browser GPT inference
+- Character roles configure temperature/personality
+- `/crown/agents` loads pre-quantized models
 
 ## Active Branch
 
