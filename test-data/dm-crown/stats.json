@@ -1,0 +1,14 @@
+{
+  "difficulty": "medium",
+  "averageEncounterCR": 5,
+  "partyLevel": 7,
+  "partySize": 4,
+  "sessionLength": "3-4 hours",
+  "combatBalance": 0.4,
+  "roleplayBalance": 0.6,
+  "milestones": [
+    "Discovered first Fragment in Skyreach",
+    "Formed alliance with Iron King",
+    "Defeated the Shadow Drake"
+  ]
+}
