@@ -5,29 +5,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Install dependencies
+# Install dependencies (REQUIRED on first run)
 npm install
 
 # Start server (production, port 3000)
 npm start
 
-# Development mode
+# Development mode (auto-loads asx-config.json)
 npm run dev
 
 # Custom port
 npx asxr-multi-hive start 8080
 
-# Build production bundle to dist/
+# Build production bundle to dist/ (NOT YET IMPLEMENTED)
 npm run build
 ```
 
-No test runner is configured yet (`npm test` uses `node --test tests/**/*.test.js` but no tests exist).
+**Testing**: No test runner configured. `npm test` points to `node --test tests/**/*.test.js` but tests/ directory doesn't exist.
 
 ### Key URLs after starting
+- `http://localhost:3000/api/health` — Health check (✓ VERIFIED WORKING)
+- `http://localhost:3000/api/hive/status` — Hive status (✓ VERIFIED WORKING)
+- `http://localhost:3000/api/hive/shards` — List shards (✓ VERIFIED WORKING)
 - `http://localhost:3000` — Main boot UI (`index.html`)
 - `http://localhost:3000/demo.html` — Multi-Hive stack demo
 - `http://localhost:3000/crown-manager.html` — AI Crown manager
-- `http://localhost:3000/api/health` — Health check
 
 ## Architecture
 
@@ -109,13 +111,74 @@ agents/
 examples/crowns/    — Crown JSON files (asx-language-pro.json pre-built)
 ```
 
-### Stub Files (not yet implemented)
+## Implementation Status
+
+### ✅ Verified Working
+- **HTTP Server** - Starts on port 3000, serves static files, handles API routes
+- **Health Endpoint** - `/api/health` returns server stats
+- **Hive Status** - `/api/hive/status` returns orchestrator state
+- **Shards Listing** - `/api/hive/shards` returns empty array (endpoint functional)
+- **HiveOrchestrator** - Initializes, maintains shard registry
+- **All Core Libraries Exist** - KLH, XJSON, K'uhul, SCX modules are present
+
+### ⚠️ Implemented But Untested
+- **Shard Creation** - `POST /api/hive/shards` exists but no test data
+- **Mesh Routing** - `/mesh/:shardId/*` logic exists but never called
+- **Crown Building** - `CrownBuilder.buildFromDirectory()` logic exists but never executed
+- **SCX Compression** - `encode()/decode()` methods exist but compression ratio (87%) unverified
+- **K'uhul VM** - Glyph execution logic exists but no programs tested
+- **XJSON Parser** - `parse()/compile()` methods exist but no real XJSON processed
+- **AI Swarm** - `/ai/*` endpoints exist but Ollama not running
+- **GitHub Integration** - Clone logic exists, 16 repos pre-configured, never tested
+- **HuggingFace Integration** - Download logic exists, 16 models pre-configured, never tested
+- **Colab Notebooks** - Generation logic creates valid `.ipynb` structure, never tested
+- **Crown Loader** - `getCrownContext()` renders knowledge, never loaded real Crown
+
+### ❌ Not Implemented
+- **Build System** - `npm run build` exists but `scripts/build.js` is empty stub
+- **Tests** - No tests exist (`tests/` directory doesn't exist)
+- **Shard Handlers** - GitHub repos clone but `.shard.json` files never route to actual repo functionality
+- **Real Mesh Networking** - All "ports" are virtual labels; no actual inter-process communication
+- **Python Scripts** - `python/*.py` all 6-byte empty stubs
+
+### 🎯 Crown System Use Cases (User Intent)
+
+The Crown system is designed for:
+1. **Character Roles** - Load personality/behavior from Crown (system prompts, temperature, specializations)
+2. **Domain Agents** - Fine-tune models on specific domains (legal, medical, gaming, code)
+3. **Agentic Coding** - Build Crowns from codebases to create code-aware agents
+4. **Semantic Agents** - Parse `.toml`/`.yaml` configs as agent definitions
+
+**Current State**: Crown infrastructure exists (Builder, Loader, Manager, API) but no end-to-end example demonstrating character roles or domain specialization.
+
+### 🚀 Next Steps to Make This Real
+
+**Priority 1 - Prove Crown System Works:**
+1. Create a test Crown from real data (e.g., `examples/crowns/`)
+2. Build Crown using `CrownBuilder.buildFromDirectory()`
+3. Verify SCX compression ratio
+4. Load Crown via `CrownLoader.getCrownContext()`
+5. Test with Ollama model (if available) or mock AI
+
+**Priority 2 - Prove Shard System Works:**
+1. Boot hive with `asx-config.json`
+2. Create test shard via API
+3. Route mesh call to shard
+4. Verify K'uhul handler execution
+
+**Priority 3 - Prove Integrations Work:**
+1. Clone a GitHub repo, verify `.shard.json` generation
+2. Test Crown building from cloned repo
+3. Generate Colab notebook, verify it runs
+
+## Stub Files Reference
 
 - `terminal/basher.js`, `emu/jsnes_core.js` — empty stubs
-- `python/asx_train.py`, `asx_infer.py`, `asx_ngram_builder.py`, `deepseek_core.py`, `model_utils.py` — all empty stubs (6 bytes each)
-- `tapes/` — empty directory for tape definitions
-- The `index.html` boot UI initialises minimal inline stubs for `window.ASX`, `window.SCX`, `window.EMU`, `window.STUDIO` but does not load the real libraries
+- `python/*.py` (5 files) — all empty 6-byte stubs
+- `tapes/` — empty directory
+- `scripts/build.js` — empty stub
+- `index.html` — Inline stubs for `window.ASX`, `window.SCX`, `window.EMU`, `window.STUDIO` (doesn't load real libraries)
 
-### Active Branch
+## Active Branch
 
 Development happens on `claude/multi-hive-os-stack-01KuW5hUQrFHVCqrbF24en6Q`. Always push to this branch.
