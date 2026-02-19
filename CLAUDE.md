@@ -192,6 +192,46 @@ See `CROWN-EXAMPLE.md` for complete documentation.
 - `scripts/build.js` — empty stub
 - `index.html` — Inline stubs for `window.ASX`, `window.SCX`, `window.EMU`, `window.STUDIO` (doesn't load real libraries)
 
+## SCX Tensor Pack (SCX-TP-INT4) — Planned
+
+A hardware-realistic browser-native model format is planned for Phase 9+:
+
+**Design Goals:**
+- INT4 quantized weights for browser deployment
+- WebGPU kernel compilation from SCX operations
+- Deterministic binary layout (base64-encoded for GitHub)
+- Block-wise quantization (128-element blocks)
+- Merkle-verified model shards
+- ≤64M parameter models runnable in browser
+
+**Planned Components:**
+- `lib/scx/tensor-pack.js` - Binary encoder/decoder for SCX-TP format
+- `lib/scx/int4-quantizer.js` - Block-wise INT4 quantization
+- `lib/scx/merkle-verification.js` - Model integrity verification
+- `lib/gpu/webgpu-compiler.js` - SCX graph → WGSL compilation
+- `lib/gpu/dequant-kernel.wgsl` - INT4 dequantization shader
+- `lib/gpu/attention-kernel.wgsl` - Attention primitive
+
+**Binary Format:**
+```
+Header (64 bytes):
+  0x00: Magic 'SCX4'
+  0x04: Version (major.minor)
+  0x08: Model config (layers, hidden_size, n_heads, seq_len, vocab_size)
+  0x20: Merkle root (32 bytes)
+
+Weights (INT4 packed):
+  Block-wise quantized (scale + zero_point per 128 elements)
+  Stored as base64 in GitHub, decoded to binary in browser
+```
+
+**Integration with Crown System:**
+- Crowns load as context for browser GPT inference
+- Character roles configure temperature/personality
+- No Python, no server required
+
+**Current Status:** Design spec complete, implementation planned for post-Phase 8.
+
 ## Active Branch
 
 Development happens on `claude/multi-hive-os-stack-01KuW5hUQrFHVCqrbF24en6Q`. Always push to this branch.
