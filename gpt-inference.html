@@ -481,54 +481,44 @@ Example: You are a DM. A player enters a dark forest..."></textarea>
       }
     }
 
-    function loadExampleData() {
-      // Example models
-      const models = [
-        { id: 'gpt-12l-32m-int4', name: '12L-32M INT4', size: '332KB', compression: '7.11x' },
-        { id: 'gpt-6l-16m-int4', name: '6L-16M INT4', size: '142KB', compression: '7.11x' }
-      ];
+    async function loadExampleData() {
+      try {
+        // Load models from server
+        const modelsResp = await fetch('/crown/browser/models');
+        const modelsData = await modelsResp.json();
 
-      const modelSelect = document.getElementById('model-select');
-      modelSelect.innerHTML = models.map(m =>
-        `<option value="${m.id}">${m.name} (${m.size})</option>`
-      ).join('');
-
-      // Example crowns
-      const crowns = [
-        {
-          id: 'dm',
-          name: 'Dungeon Master',
-          personality: 'Dramatic',
-          temp: 0.8,
-          specs: ['D&D 5e', 'Improvisation']
-        },
-        {
-          id: 'tutor',
-          name: 'Math Tutor',
-          personality: 'Patient',
-          temp: 0.5,
-          specs: ['Mathematics', 'Explanation']
-        },
-        {
-          id: 'author',
-          name: 'Creative Author',
-          personality: 'Imaginative',
-          temp: 0.9,
-          specs: ['Fiction', 'Storytelling']
+        const modelSelect = document.getElementById('model-select');
+        if (modelsData.models && modelsData.models.length > 0) {
+          modelSelect.innerHTML = modelsData.models.map(m =>
+            `<option value="${m.id}">${m.name} (${m.size})</option>`
+          ).join('');
+        } else {
+          modelSelect.innerHTML = '<option value="">No models available</option>';
         }
-      ];
 
-      const crownSelect = document.getElementById('crown-select');
-      crownSelect.innerHTML = '<option value="">No Crown</option>' +
-        crowns.map(c =>
-          `<option value="${c.id}">${c.name}</option>`
-        ).join('');
+        // Load crowns from server
+        const crownsResp = await fetch('/crown/browser/crowns');
+        const crownsData = await crownsResp.json();
 
-      // Event listeners
-      modelSelect.addEventListener('change', onModelChange);
-      crownSelect.addEventListener('change', onCrownChange);
-      document.getElementById('temperature').addEventListener('input', onTempChange);
-      document.getElementById('max-tokens').addEventListener('input', onTokensChange);
+        const crownSelect = document.getElementById('crown-select');
+        crownSelect.innerHTML = '<option value="">No Crown</option>';
+        if (crownsData.crowns && crownsData.crowns.length > 0) {
+          crownSelect.innerHTML += crownsData.crowns.map(c =>
+            `<option value="${c.id}">${c.name}</option>`
+          ).join('');
+        }
+
+        // Event listeners
+        modelSelect.addEventListener('change', onModelChange);
+        crownSelect.addEventListener('change', onCrownChange);
+        document.getElementById('temperature').addEventListener('input', onTempChange);
+        document.getElementById('max-tokens').addEventListener('input', onTokensChange);
+
+        console.log('[App] Loaded', modelsData.models?.length || 0, 'models and', crownsData.crowns?.length || 0, 'crowns from server');
+      } catch (error) {
+        console.error('[App] Failed to load data from server:', error);
+        alert('Failed to load models/crowns from server. Is the server running?');
+      }
     }
 
     function onModelChange(e) {
@@ -542,7 +532,7 @@ Example: You are a DM. A player enters a dark forest..."></textarea>
       console.log('[App] Selected model:', modelId);
     }
 
-    function onCrownChange(e) {
+    async function onCrownChange(e) {
       const crownId = e.target.value;
 
       if (!crownId) {
@@ -551,43 +541,33 @@ Example: You are a DM. A player enters a dark forest..."></textarea>
         return;
       }
 
-      // Example Crown data
-      const crownData = {
-        'dm': {
-          name: 'Dungeon Master',
-          personality: 'Dramatic & Engaging',
-          temperature: 0.8,
-          systemPrompt: 'You are an expert Dungeon Master...',
-          specs: ['D&D 5e', 'Improvisation', 'Fantasy']
-        },
-        'tutor': {
-          name: 'Math Tutor',
-          personality: 'Patient & Clear',
-          temperature: 0.5,
-          systemPrompt: 'You are a patient math tutor...',
-          specs: ['Mathematics', 'Explanation', 'Problem-solving']
-        },
-        'author': {
-          name: 'Creative Author',
-          personality: 'Imaginative & Vivid',
-          temperature: 0.9,
-          systemPrompt: 'You are a creative fiction writer...',
-          specs: ['Fiction', 'Storytelling', 'Description']
+      try {
+        // Fetch Crown data from server
+        const resp = await fetch(`/crown/browser/crowns/${crownId}`);
+        if (!resp.ok) {
+          throw new Error(`Failed to load Crown: ${resp.statusText}`);
         }
-      };
 
-      const crown = crownData[crownId];
-      const info = document.getElementById('crown-info');
-      info.innerHTML = `<strong>${crown.name}</strong><br>
-        Personality: ${crown.personality}<br>
-        Specializations: ${crown.specs.join(', ')}`;
+        const crown = await resp.json();
+        const config = crown.config || {};
 
-      // Adjust temperature based on Crown
-      document.getElementById('temperature').value = crown.temperature;
-      document.getElementById('temp-value').textContent = crown.temperature.toFixed(1);
+        const info = document.getElementById('crown-info');
+        const specs = config.specializations || [];
+        info.innerHTML = `<strong>${crown.name || crownId}</strong><br>
+          Personality: ${config.personality || 'Unknown'}<br>
+          Specializations: ${specs.join(', ')}`;
 
-      currentCrown = crownId;
-      console.log('[App] Selected Crown:', crownId);
+        // Adjust temperature based on Crown
+        const temp = config.temperature || 0.7;
+        document.getElementById('temperature').value = temp;
+        document.getElementById('temp-value').textContent = temp.toFixed(1);
+
+        currentCrown = crownId;
+        console.log('[App] Selected Crown:', crownId, crown);
+      } catch (error) {
+        console.error('[App] Failed to load Crown:', error);
+        alert(`Failed to load Crown ${crownId}: ${error.message}`);
+      }
     }
 
     function onTempChange(e) {

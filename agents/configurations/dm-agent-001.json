@@ -1,0 +1,12 @@
+{
+  "name": "Dungeon Master Agent (12L)",
+  "model": "gpt-12l-32m-int4",
+  "crown": "dungeon-master",
+  "config": {
+    "temperature": 0.8,
+    "maxTokens": 200,
+    "topK": 40
+  },
+  "description": "Dramatic and engaging Dungeon Master for D&D 5e campaigns. Excels at improvisation, world-building, and creating memorable NPCs.",
+  "tags": ["gaming", "rpg", "storytelling", "d&d"]
+}

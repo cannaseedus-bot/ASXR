@@ -1,0 +1,12 @@
+{
+  "name": "Creative Author Agent (12L)",
+  "model": "gpt-12l-32m-int4",
+  "crown": "creative-author",
+  "config": {
+    "temperature": 0.9,
+    "maxTokens": 300,
+    "topK": 50
+  },
+  "description": "Imaginative fiction writer with vivid prose. Crafts engaging narratives with rich descriptions, compelling characters, and unexpected twists. High creativity for original storytelling.",
+  "tags": ["writing", "fiction", "creative", "storytelling", "poetry"]
+}
