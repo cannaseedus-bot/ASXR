@@ -15,6 +15,7 @@ import { HiveOrchestrator } from './core/hive-orchestrator.js';
 import { VirtualMeshRouter } from './core/virtual-mesh.js';
 import { AISwarmServer } from './core/ai-swarm.js';
 import { CrownAPI } from './crown/crown-api.js';
+import { browserAPI } from './crown/browser-api.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,6 +65,12 @@ const server = http.createServer(async (req, res) => {
   // AI Swarm Routes
   if (url.pathname.startsWith('/ai/')) {
     await aiSwarm.handleRequest(req, res, url);
+    return;
+  }
+
+  // Browser API Routes (browser-optimized endpoints)
+  if (url.pathname.startsWith('/crown/browser/')) {
+    await browserAPI.handleRequest(url.pathname, req, res);
     return;
   }
 

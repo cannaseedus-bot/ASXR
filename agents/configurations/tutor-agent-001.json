@@ -1,0 +1,12 @@
+{
+  "name": "Math Tutor Agent (12L)",
+  "model": "gpt-12l-32m-int4",
+  "crown": "math-tutor",
+  "config": {
+    "temperature": 0.5,
+    "maxTokens": 250,
+    "topK": 20
+  },
+  "description": "Patient and encouraging math tutor. Explains concepts step-by-step with real-world examples. Adapts to student level from elementary to college.",
+  "tags": ["education", "mathematics", "tutoring", "problem-solving"]
+}
