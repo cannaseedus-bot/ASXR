@@ -6,6 +6,7 @@
 import { CrownBuilder } from './crown-builder.js';
 import { CrownLoader } from './crown-loader.js';
 import { ModelManager } from './model-manager.js';
+import { CrownOllamaIntegration } from './ollama-integration.js';
 import formidable from 'formidable';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -15,6 +16,15 @@ export class CrownAPI {
     this.crownBuilder = new CrownBuilder();
     this.crownLoader = new CrownLoader();
     this.modelManager = new ModelManager();
+    this.ollamaIntegration = new CrownOllamaIntegration();
+  }
+
+  /**
+   * Initialize API (async setup)
+   */
+  async initialize() {
+    // Initialize Ollama integration
+    await this.ollamaIntegration.initialize();
   }
 
   /**
@@ -106,6 +116,23 @@ export class CrownAPI {
         // Colab integration
         case 'colab/generate':
           await this.generateColabNotebook(req, res);
+          break;
+
+        // Ollama integration
+        case 'ollama/chat':
+          await this.ollamaChat(req, res);
+          break;
+
+        case 'ollama/swarm':
+          await this.ollamaSwarm(req, res);
+          break;
+
+        case 'ollama/models':
+          await this.ollamaListModels(req, res);
+          break;
+
+        case 'ollama/config':
+          await this.ollamaConfig(req, res);
           break;
 
         default:
@@ -439,6 +466,101 @@ export class CrownAPI {
     this.respondJSON(res, 200, {
       message: 'Colab notebook generated',
       ...result
+    });
+  }
+
+  /**
+   * Chat with Ollama using Crown personality
+   * POST /crown/ollama/chat
+   * Body: { crownId, model, message, options }
+   */
+  async ollamaChat(req, res) {
+    const body = await this.readBody(req);
+    const { crownId, model, message, options } = JSON.parse(body);
+
+    if (!crownId || !model || !message) {
+      this.respondJSON(res, 400, {
+        error: 'Missing required fields: crownId, model, message'
+      });
+      return;
+    }
+
+    const result = await this.ollamaIntegration.chatWithCrown(
+      crownId,
+      model,
+      message,
+      options || {}
+    );
+
+    if (result.success) {
+      this.respondJSON(res, 200, result);
+    } else {
+      this.respondJSON(res, 500, result);
+    }
+  }
+
+  /**
+   * Multi-model swarm with Crown personality
+   * POST /crown/ollama/swarm
+   * Body: { crownId, message, models, options }
+   */
+  async ollamaSwarm(req, res) {
+    const body = await this.readBody(req);
+    const { crownId, message, models, options } = JSON.parse(body);
+
+    if (!crownId || !message) {
+      this.respondJSON(res, 400, {
+        error: 'Missing required fields: crownId, message'
+      });
+      return;
+    }
+
+    const result = await this.ollamaIntegration.swarmChatWithCrown(
+      crownId,
+      message,
+      models || null,
+      options || {}
+    );
+
+    if (result.success) {
+      this.respondJSON(res, 200, result);
+    } else {
+      this.respondJSON(res, 500, result);
+    }
+  }
+
+  /**
+   * List available Ollama models
+   * GET /crown/ollama/models
+   */
+  async ollamaListModels(req, res) {
+    const models = await this.ollamaIntegration.listModels();
+    this.respondJSON(res, 200, { models });
+  }
+
+  /**
+   * Configure Ollama connection (for cloud models or custom URL)
+   * POST /crown/ollama/config
+   * Body: { baseUrl }
+   */
+  async ollamaConfig(req, res) {
+    const body = await this.readBody(req);
+    const { baseUrl } = JSON.parse(body);
+
+    if (!baseUrl) {
+      this.respondJSON(res, 400, { error: 'Missing baseUrl' });
+      return;
+    }
+
+    this.ollamaIntegration.setOllamaURL(baseUrl);
+    await this.ollamaIntegration.initialize();
+
+    const models = await this.ollamaIntegration.listModels();
+
+    this.respondJSON(res, 200, {
+      message: 'Ollama configuration updated',
+      baseUrl,
+      models
     });
   }
 
