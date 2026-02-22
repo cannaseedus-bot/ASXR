@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crown + Ollama Chat - ASXR</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .config-panel {
+      padding: 24px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .config-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #495057;
+      font-size: 14px;
+    }
+
+    .config-group select,
+    .config-group input {
+      padding: 10px 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .config-group select:focus,
+    .config-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .crown-info {
+      background: white;
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+      margin-top: 12px;
+    }
+
+    .crown-info h3 {
+      font-size: 16px;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+
+    .crown-info p {
+      font-size: 13px;
+      color: #6c757d;
+      line-height: 1.6;
+    }
+
+    .crown-info .tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .crown-info .tag {
+      background: #e7f3ff;
+      color: #0066cc;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .ollama-config {
+      grid-column: 1 / -1;
+      background: #fff3cd;
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 4px solid #ffc107;
+    }
+
+    .ollama-config h3 {
+      font-size: 14px;
+      color: #856404;
+      margin-bottom: 8px;
+    }
+
+    .ollama-config input {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .ollama-config button {
+      margin-top: 8px;
+      padding: 8px 16px;
+      background: #ffc107;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .ollama-config button:hover {
+      background: #e0a800;
+    }
+
+    .chat-panel {
+      padding: 24px;
+      min-height: 400px;
+      max-height: 500px;
+      overflow-y: auto;
+      background: white;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .message.user .message-bubble {
+      background: #667eea;
+      color: white;
+    }
+
+    .message.assistant .message-bubble {
+      background: #f1f3f5;
+      color: #212529;
+    }
+
+    .message.system .message-bubble {
+      background: #d1ecf1;
+      color: #0c5460;
+      max-width: 100%;
+      font-size: 13px;
+    }
+
+    .message-meta {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .input-panel {
+      padding: 20px 24px;
+      background: #f8f9fa;
+      border-top: 2px solid #e9ecef;
+      display: flex;
+      gap: 12px;
+    }
+
+    .input-panel textarea {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      min-height: 60px;
+      transition: border-color 0.2s;
+    }
+
+    .input-panel textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .input-panel button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .input-panel button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .input-panel button:active {
+      transform: translateY(0);
+    }
+
+    .input-panel button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .stats {
+      padding: 16px 24px;
+      background: #e7f3ff;
+      border-top: 1px solid #bee5eb;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #0c5460;
+    }
+
+    .stats-item {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .stats-label {
+      font-weight: 600;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      border-left: 4px solid #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 Crown + Ollama Chat</h1>
+      <p>Chat with Ollama models using Crown personality injection</p>
+    </div>
+
+    <div class="config-panel">
+      <div class="config-row">
+        <div class="config-group">
+          <label for="crown-select">Crown Character:</label>
+          <select id="crown-select">
+            <option value="">Loading crowns...</option>
+          </select>
+          <div id="crown-info" class="crown-info" style="display: none;"></div>
+        </div>
+
+        <div class="config-group">
+          <label for="model-select">Ollama Model:</label>
+          <select id="model-select">
+            <option value="">Loading models...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ollama-config">
+        <h3>⚙️ Ollama Configuration (Optional - for Cloud Models)</h3>
+        <p style="font-size: 12px; color: #856404; margin-bottom: 8px;">
+          Default: http://localhost:11434 | For cloud models, enter custom URL
+        </p>
+        <input type="text" id="ollama-url" placeholder="http://localhost:11434" />
+        <button id="set-ollama-url">Update Ollama URL</button>
+      </div>
+    </div>
+
+    <div id="error-panel"></div>
+
+    <div class="chat-panel" id="chat-panel">
+      <div class="message system">
+        <div class="message-bubble">
+          <strong>Welcome!</strong> Select a Crown character and an Ollama model to start chatting.
+          <br><br>
+          <strong>Crown System:</strong> Injects personality, knowledge, and behavior into the AI model.
+          <br>
+          <strong>Cloud Models:</strong> If using Ollama cloud models, configure the URL above.
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stats-item">
+        <span class="stats-label">Conversation:</span>
+        <span id="conversation-id">Not started</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Messages:</span>
+        <span id="message-count">0</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Last Response:</span>
+        <span id="response-time">—</span>
+      </div>
+    </div>
+
+    <div class="input-panel">
+      <textarea id="user-input" placeholder="Type your message here..." rows="2"></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    let crowns = [];
+    let models = [];
+    let selectedCrown = null;
+    let selectedModel = null;
+    let conversationId = null;
+    let messageCount = 0;
+
+    // Load crowns and models on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadCrowns();
+      await loadModels();
+    });
+
+    // Load available crowns
+    async function loadCrowns() {
+      try {
+        const response = await fetch('/crown/browser/crowns');
+        const data = await response.json();
+        crowns = data.crowns || [];
+
+        const select = document.getElementById('crown-select');
+        if (crowns.length === 0) {
+          select.innerHTML = '<option value="">No crowns available</option>';
+          return;
+        }
+
+        select.innerHTML = crowns.map(c =>
+          `<option value="${c.id}">${c.name}</option>`
+        ).join('');
+
+        // Select first crown by default
+        if (crowns.length > 0) {
+          select.value = crowns[0].id;
+          await onCrownChange();
+        }
+      } catch (error) {
+        console.error('[UI] Failed to load crowns:', error);
+        showError('Failed to load crowns. Is the server running?');
+      }
+    }
+
+    // Load available Ollama models
+    async function loadModels() {
+      try {
+        const response = await fetch('/crown/ollama/models');
+        const data = await response.json();
+        models = data.models || [];
+
+        const select = document.getElementById('model-select');
+        if (models.length === 0) {
+          select.innerHTML = '<option value="">No Ollama models available</option>';
+          showError('No Ollama models found. Make sure Ollama is running and has models installed.');
+          return;
+        }
+
+        select.innerHTML = models.map(m =>
+          `<option value="${m.name}">${m.name}</option>`
+        ).join('');
+
+        // Select first model by default
+        if (models.length > 0) {
+          select.value = models[0].name;
+          selectedModel = models[0].name;
+        }
+      } catch (error) {
+        console.error('[UI] Failed to load models:', error);
+        showError('Failed to load Ollama models. Make sure Ollama is running at http://localhost:11434');
+      }
+    }
+
+    // Crown selection changed
+    async function onCrownChange() {
+      const crownId = document.getElementById('crown-select').value;
+      if (!crownId) return;
+
+      try {
+        const response = await fetch(`/crown/browser/crowns/${crownId}`);
+        const crown = await response.json();
+        selectedCrown = crownId;
+
+        const config = crown.config || {};
+        const info = document.getElementById('crown-info');
+        const specs = config.specializations || [];
+
+        info.innerHTML = `
+          <h3>${crown.name || crownId}</h3>
+          <p><strong>Personality:</strong> ${config.personality || 'Unknown'}</p>
+          <p><strong>Temperature:</strong> ${config.temperature || 0.7}</p>
+          ${specs.length > 0 ? `
+            <div class="tags">
+              ${specs.map(s => `<span class="tag">${s}</span>`).join('')}
+            </div>
+          ` : ''}
+        `;
+        info.style.display = 'block';
+      } catch (error) {
+        console.error('[UI] Failed to load crown details:', error);
+      }
+    }
+
+    // Model selection changed
+    function onModelChange() {
+      selectedModel = document.getElementById('model-select').value;
+    }
+
+    // Set custom Ollama URL
+    async function setOllamaURL() {
+      const url = document.getElementById('ollama-url').value;
+      if (!url) {
+        alert('Please enter a valid Ollama URL');
+        return;
+      }
+
+      try {
+        const response = await fetch('/crown/ollama/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ baseUrl: url })
+        });
+
+        const data = await response.json();
+        if (data.models) {
+          models = data.models;
+          const select = document.getElementById('model-select');
+          select.innerHTML = models.map(m =>
+            `<option value="${m.name}">${m.name}</option>`
+          ).join('');
+
+          addSystemMessage(`✓ Ollama URL updated: ${url} | ${models.length} models available`);
+        }
+      } catch (error) {
+        console.error('[UI] Failed to update Ollama URL:', error);
+        showError('Failed to connect to Ollama at the specified URL');
+      }
+    }
+
+    // Send message
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+
+      if (!message) return;
+      if (!selectedCrown || !selectedModel) {
+        showError('Please select a Crown and Ollama model');
+        return;
+      }
+
+      // Add user message to chat
+      addMessage('user', message);
+      input.value = '';
+
+      // Disable send button
+      const sendBtn = document.getElementById('send-btn');
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="spinner"></span> Sending...';
+
+      try {
+        const startTime = Date.now();
+
+        const response = await fetch('/crown/ollama/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            crownId: selectedCrown,
+            model: selectedModel,
+            message,
+            options: {
+              conversationId: conversationId || undefined
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const duration = Date.now() - startTime;
+
+          // Update conversation info
+          conversationId = data.conversationId;
+          messageCount = data.messageCount;
+          document.getElementById('conversation-id').textContent = conversationId.slice(0, 16) + '...';
+          document.getElementById('message-count').textContent = messageCount;
+          document.getElementById('response-time').textContent = (duration / 1000).toFixed(2) + 's';
+
+          // Add assistant response
+          addMessage('assistant', data.response, {
+            model: data.model,
+            tokens: data.stats.eval_count,
+            tokensPerSecond: data.stats.tokens_per_second
+          });
+        } else {
+          showError(data.error || 'Failed to get response from Ollama');
+        }
+      } catch (error) {
+        console.error('[UI] Chat error:', error);
+        showError('Failed to send message. Check console for details.');
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send';
+      }
+    }
+
+    // Add message to chat
+    function addMessage(role, content, meta = null) {
+      const chatPanel = document.getElementById('chat-panel');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}`;
+
+      let metaHTML = '';
+      if (meta) {
+        metaHTML = `<div class="message-meta">
+          ${meta.model ? `Model: ${meta.model}` : ''}
+          ${meta.tokens ? ` | Tokens: ${meta.tokens}` : ''}
+          ${meta.tokensPerSecond ? ` | Speed: ${meta.tokensPerSecond} tok/s` : ''}
+        </div>`;
+      }
+
+      messageDiv.innerHTML = `
+        <div class="message-bubble">
+          ${content}
+          ${metaHTML}
+        </div>
+      `;
+
+      chatPanel.appendChild(messageDiv);
+      chatPanel.scrollTop = chatPanel.scrollHeight;
+    }
+
+    // Add system message
+    function addSystemMessage(content) {
+      const chatPanel = document.getElementById('chat-panel');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message system';
+      messageDiv.innerHTML = `<div class="message-bubble">${content}</div>`;
+      chatPanel.appendChild(messageDiv);
+      chatPanel.scrollTop = chatPanel.scrollHeight;
+    }
+
+    // Show error
+    function showError(message) {
+      const errorPanel = document.getElementById('error-panel');
+      errorPanel.innerHTML = `<div class="error">${message}</div>`;
+      setTimeout(() => {
+        errorPanel.innerHTML = '';
+      }, 5000);
+    }
+
+    // Event listeners
+    document.getElementById('crown-select').addEventListener('change', onCrownChange);
+    document.getElementById('model-select').addEventListener('change', onModelChange);
+    document.getElementById('set-ollama-url').addEventListener('click', setOllamaURL);
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('user-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

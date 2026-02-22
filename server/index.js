@@ -240,6 +240,9 @@ server.listen(PORT, async () => {
   Press Ctrl+C to stop
 `);
 
+  // Initialize Crown API (Ollama integration)
+  await crownAPI.initialize();
+
   // Auto-boot default hive in dev mode
   if (DEV_MODE) {
     try {
